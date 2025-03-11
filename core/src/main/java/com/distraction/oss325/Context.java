@@ -1,17 +1,39 @@
 package com.distraction.oss325;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.distraction.oss325.screens.PlayScreen;
 import com.distraction.oss325.screens.ScreenManager;
-import com.distraction.oss325.screens.TitleScreen;
 
 public class Context {
+
+    private static final String ATLAS = "oss325.atlas";
+
+    public AssetManager assets;
 
     public ScreenManager sm;
     public SpriteBatch sb;
 
     public Context() {
-        sm = new ScreenManager(new TitleScreen(this));
+        assets = new AssetManager();
+        assets.load(ATLAS, TextureAtlas.class);
+        assets.finishLoading();
+
         sb = new SpriteBatch();
+
+        sm = new ScreenManager(new PlayScreen(this));
+    }
+
+    public TextureRegion getImage(String key) {
+        TextureRegion region = assets.get(ATLAS, TextureAtlas.class).findRegion(key);
+        if (region == null) throw new IllegalArgumentException("image " + key + " not found");
+        return region;
+    }
+
+    public TextureRegion getPixel() {
+        return getImage("pixel");
     }
 
     public void dispose() {
