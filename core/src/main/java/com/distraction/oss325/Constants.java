@@ -2,7 +2,7 @@ package com.distraction.oss325;
 
 import com.badlogic.gdx.graphics.Color;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
 public class Constants {
 
     public static final String TITLE = "something";
