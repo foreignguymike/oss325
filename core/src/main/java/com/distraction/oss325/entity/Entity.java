@@ -9,6 +9,8 @@ abstract class Entity {
     public float w, h;
     public float dx, dy;
 
+    public boolean remove = false;
+
     public boolean contains(float x1, float y1) {
         return x1 > x - w / 2 && x1 < x + w / 2
             && y1 > y - h / 2 && y1 < y + h / 2;

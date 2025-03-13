@@ -13,4 +13,8 @@ public class Utils {
         sb.draw(image, x - image.getRegionWidth() / 2f, y - image.getRegionHeight() / 2f);
     }
 
+    public static int ceilTo(int number, int n) {
+        return ((number + n - 1) / n) * n;
+    }
+
 }
