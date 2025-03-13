@@ -12,14 +12,27 @@ public class Constants {
     public static final int SWIDTH = WIDTH * SCALE;
     public static final int SHEIGHT = HEIGHT * SCALE;
 
-    // Fairydust 8 palette
-    // https://lospec.com/palette-list/fairydust-8
-    public static final Color YELLOW = Color.valueOf("f0dab1");
-    public static final Color RED = Color.valueOf("e39aac");
-    public static final Color VIOLET = Color.valueOf("c45d9f");
-    public static final Color PURPLE = Color.valueOf("634b7d");
-    public static final Color BLUE = Color.valueOf("6461c2");
-    public static final Color TEAL = Color.valueOf("2ba9b4");
-    public static final Color GREEN = Color.valueOf("93d4b5");
-    public static final Color WHITE = Color.valueOf("f0f6e8");
+    // Island Joy 16
+    // https://lospec.com/palette-list/island-joy-16
+    public static final Color[] COLORS = new Color[] {
+        Color.valueOf("ffffff"),
+        Color.valueOf("6df7c1"),
+        Color.valueOf("11adc1"),
+        Color.valueOf("606c81"),
+        Color.valueOf("393457"),
+        Color.valueOf("1e8875"),
+        Color.valueOf("5bb361"),
+        Color.valueOf("a1e55a"),
+        Color.valueOf("f7e476"),
+        Color.valueOf("f99252"),
+        Color.valueOf("cb4d68"),
+        Color.valueOf("6a3771"),
+        Color.valueOf("c92464"),
+        Color.valueOf("f48cb6"),
+        Color.valueOf("f7b69e"),
+        Color.valueOf("9b9c82")
+    };
+    public static final Color WHITE = COLORS[0];
+    public static final Color BLUE = COLORS[2];
+    public static final Color BLACK = COLORS[4];
 }
