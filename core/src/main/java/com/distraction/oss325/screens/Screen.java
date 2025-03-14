@@ -32,6 +32,8 @@ public abstract class Screen {
         debugCamera.setToOrtho(false, Constants.SWIDTH, Constants.SHEIGHT);
     }
 
+    public abstract void input();
+
     public abstract void update(float dt);
 
     public abstract void render();

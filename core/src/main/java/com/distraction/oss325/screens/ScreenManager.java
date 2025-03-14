@@ -8,6 +8,10 @@ public class ScreenManager extends Stack<Screen> {
         push(screen);
     }
 
+    public void input() {
+        peek().input();
+    }
+
     public void update(float dt) {
         peek().update(dt);
     }

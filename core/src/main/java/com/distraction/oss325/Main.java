@@ -18,6 +18,7 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
+        context.sm.input();
         // lock step, physics based game, don't want any random frame spikes to ruin things
         accum += Gdx.graphics.getDeltaTime();
         while (accum > TICK) {

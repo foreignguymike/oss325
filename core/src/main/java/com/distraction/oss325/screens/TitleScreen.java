@@ -9,6 +9,11 @@ public class TitleScreen extends Screen {
     }
 
     @Override
+    public void input() {
+
+    }
+
+    @Override
     public void update(float dt) {
 
     }

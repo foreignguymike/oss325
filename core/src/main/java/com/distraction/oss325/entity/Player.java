@@ -33,6 +33,14 @@ public class Player extends Entity {
         kicked = true;
         dx = MathUtils.cos(rad) * speed;
         dy = MathUtils.sin(rad) * speed;
+
+        System.out.println("kick at " + rad + ", " + speed);
+    }
+
+    public void bomb() {
+        dx *= 1.5f;
+        dy = Math.abs(dy);
+        dy *= 2f;
     }
 
     public void reset() {
@@ -57,7 +65,7 @@ public class Player extends Entity {
             // hit floor
             if (dy < 0 && y - h / 2 <= floor) {
                 // slow down and bounce
-                dx *= 0.9f;
+                dx *= 0.8f;
                 dy = -dy * 0.7f;
             }
 
