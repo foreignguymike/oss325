@@ -41,13 +41,6 @@ public class Player extends Entity {
         System.out.println("kick at " + rad + ", " + speed);
     }
 
-    public void bomb() {
-        dx *= 1.5f;
-        dy = Math.abs(dy);
-        dy *= 2f;
-//        if (dy < 10) dy = 10;
-    }
-
     public void reset() {
         kicked = false;
         stopped = false;
@@ -92,6 +85,13 @@ public class Player extends Entity {
             }
 
             rad -= Math.min(4 * dt, dx / 2000);
+
+        } else if (stopped) {
+            dy -= GRAVITY * dt;
+            y += dy * dt;
+            if (y - h / 2f < floor) {
+                y = floor + h / 2f;
+            }
         }
     }
 

@@ -12,7 +12,6 @@ public class LaunchPower extends Entity {
 
     private final TextureRegion bar;
     private final TextureRegion downArrow;
-    private final TextureRegion upArrow;
 
     private float timer;
     private float power;
@@ -20,7 +19,6 @@ public class LaunchPower extends Entity {
     public LaunchPower(Context context) {
         bar = context.getImage("launchbarbg");
         downArrow = context.getImage("launchbardownarrow");
-        upArrow = context.getImage("launchbaruparrow");
 
         w = bar.getRegionWidth();
         h = bar.getRegionHeight();
@@ -40,6 +38,5 @@ public class LaunchPower extends Entity {
     public void render(SpriteBatch sb) {
         Utils.drawCentered(sb, bar, x, y);
         Utils.drawCentered(sb, downArrow, x - w / 2 + 4.5f + 50 * power, y + 5);
-        Utils.drawCentered(sb, upArrow, x - w / 2 + 4.5f + 50 * power, y - 5);
     }
 }

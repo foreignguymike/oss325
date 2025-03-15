@@ -4,23 +4,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
 import com.distraction.oss325.entity.Background;
 import com.distraction.oss325.entity.Bomb;
+import com.distraction.oss325.entity.Interactable;
 import com.distraction.oss325.entity.LaunchAngle;
 import com.distraction.oss325.entity.LaunchPower;
 import com.distraction.oss325.entity.Particle;
 import com.distraction.oss325.entity.Player;
+import com.distraction.oss325.entity.SlowSign;
+import com.distraction.oss325.entity.Stop;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayScreen extends Screen {
 
-    private final int BOMB_INTERVAL = 1000;
+    private final int INTERVAL = 500;
 
     private enum State {
         RAD,
@@ -39,7 +41,7 @@ public class PlayScreen extends Screen {
     private final float ceil = Constants.HEIGHT - 20;
     private final float floor = 20;
 
-    private final List<Bomb> bombs;
+    private final List<Interactable> interactables;
 
     private LaunchAngle launchAngle;
     private LaunchPower launchPower;
@@ -55,7 +57,7 @@ public class PlayScreen extends Screen {
         pixel = context.getPixel();
 
         player = new Player(context);
-        bombs = new ArrayList<>();
+        interactables = new ArrayList<>();
 
         bgs = new ArrayList<>();
         bgs.add(new Background(context.getImage("floor"), cam));
@@ -81,7 +83,7 @@ public class PlayScreen extends Screen {
 
         cam.zoom = 0.5f;
 
-        bombs.clear();
+        interactables.clear();
 
         launchAngle = new LaunchAngle(context);
         launchAngle.x = player.x - 8;
@@ -89,23 +91,31 @@ public class PlayScreen extends Screen {
 
         launchPower = new LaunchPower(context);
         launchPower.x = player.x;
-        launchPower.y = player.y + 30;
+        launchPower.y = player.y + 25;
     }
 
     /**
-     * We should keep a list of bombs every BOMB_INTERVAL
-     *
-     * @param dist current poko distance
+     * Get the next item in the list. Rules:
+     * - Every INTERVAL is a new item.
+     * - Every 10 items is a STOP.
+     * - Every 3 items is a SLOW.
+     * - Everything else is a BOMB.
      */
-    private void addBombs(float dist) {
-        // add new bombs if necessary
-        int nextBombX = Utils.ceilTo((int) (dist + Constants.WIDTH / 2f), BOMB_INTERVAL);
-        if (bombs.isEmpty() || bombs.getLast().x < nextBombX) {
-            Bomb bomb = new Bomb(context);
-            bomb.x = nextBombX;
-            bomb.y = floor + bomb.h / 2;
-            bombs.add(bomb);
+    private List<Interactable> nextInteractables(int x) {
+        List<Interactable> list = new ArrayList<>();
+        int index = x / INTERVAL;
+        if (index % 10 == 0) {
+            list.add(new Stop(context));
+        } else if (index % 3 == 0) {
+            list.add(new SlowSign(context));
+        } else {
+            list.add(new Bomb(context));
         }
+        for (Interactable i : list) {
+            i.x = x;
+            i.y = floor + i.h / 2;
+        }
+        return list;
     }
 
     @Override
@@ -132,17 +142,6 @@ public class PlayScreen extends Screen {
         }
     }
 
-    private void createExplosion(float x, float y) {
-        particles.add(
-            new Particle(
-                context.getImage("explosion").split(34, 36)[0],
-                2 / 60f,
-                x,
-                y
-            )
-        );
-    }
-
     @Override
     public void update(float dt) {
         // update transitions
@@ -162,24 +161,20 @@ public class PlayScreen extends Screen {
         // update background
         for (Background bg : bgs) bg.update(dt);
 
-        // add bombs
-        addBombs(player.x);
+        // add interactables
+        int nextItem = Utils.ceilTo((int) (player.x + Constants.WIDTH / 2f), INTERVAL);
+        if (interactables.isEmpty() || interactables.getLast().x < nextItem) {
+            interactables.addAll(nextInteractables(nextItem));
+        }
 
         // update bombs and check collision
-        for (int i = 0; i < bombs.size(); i++) {
-            Bomb bomb = bombs.get(i);
-            bomb.update(dt);
-            if (player.intersects(bomb)) {
-                bomb.remove = true;
-                player.bomb();
-                for (int j = 0; j < 5; j++) {
-                    createExplosion(
-                        MathUtils.random(bomb.x - 20, bomb.x + 20),
-                        MathUtils.random(bomb.y - 20, bomb.y + 20)
-                    );
-                }
+        for (int i = 0; i < interactables.size(); i++) {
+            Interactable e = interactables.get(i);
+            e.update(dt);
+            if (player.intersects(e)) {
+                e.interact(context, player, particles);
             }
-            if (bomb.remove || bomb.x < player.x - Constants.WIDTH) bombs.remove(i--);
+            if (e.remove || e.x < player.x - Constants.WIDTH) interactables.remove(i--);
         }
 
         // update particles
@@ -200,7 +195,7 @@ public class PlayScreen extends Screen {
         sb.begin();
 
         sb.setProjectionMatrix(uiCam.combined);
-        sb.setColor(Constants.PINK);
+        sb.setColor(Constants.BLUE);
         sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
 
         sb.setColor(1, 1, 1, 1);
@@ -216,9 +211,7 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(cam.combined);
 
         sb.setColor(1, 1, 1, 1);
-        for (Bomb bomb : bombs) {
-            bomb.render(sb);
-        }
+        for (Interactable e : interactables) e.render(sb);
 
         sb.setColor(1, 1, 1, 1);
         player.render(sb);
