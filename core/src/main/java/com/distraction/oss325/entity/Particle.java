@@ -7,7 +7,7 @@ import com.distraction.oss325.Utils;
 
 public class Particle extends Entity {
 
-    private Animation animation;
+    private final Animation animation;
 
     public Particle(TextureRegion[] images, float interval, float x, float y) {
         animation = new Animation(images, interval);

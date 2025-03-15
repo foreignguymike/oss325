@@ -113,9 +113,7 @@ public class PlayScreen extends Screen {
         if (ignoreInput) return;
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
             ignoreInput = true;
-            out.setCallback(() -> {
-                context.sm.replace(new PlayScreen(context));
-            });
+            out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
             out.start();
         }
 
