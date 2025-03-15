@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.distraction.oss325.Constants;
+import com.distraction.oss325.Utils;
 
 public class Background extends Entity {
 
@@ -16,12 +17,12 @@ public class Background extends Entity {
         this.cam = cam;
         w = image.getRegionWidth();
         h = image.getRegionHeight();
-        count = (int) (Constants.WIDTH / w) + 2;
+        count = (int) (Constants.WIDTH / w) + 3;
     }
 
     @Override
     public void update(float dt) {
-        x = -cam.position.x % w;
+        x = Utils.floorTo((int) (cam.position.x - Constants.WIDTH / 2f - w), (int) w);
     }
 
     @Override

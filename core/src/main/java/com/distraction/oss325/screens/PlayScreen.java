@@ -2,7 +2,6 @@ package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.distraction.oss325.Constants;
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class PlayScreen extends Screen {
 
-    private final int BOMB_INTERVAL = 2000;
+    private final int BOMB_INTERVAL = 1000;
 
     private enum State {
         RAD,
@@ -35,6 +34,7 @@ public class PlayScreen extends Screen {
 
     private final BitmapFont font = new BitmapFont();
 
+    private final float ceil = Constants.HEIGHT - 20;
     private final float floor = 20;
 
     private final List<Bomb> bombs;
@@ -44,7 +44,7 @@ public class PlayScreen extends Screen {
     private float rad;
     private float power;
 
-    private final Background bg;
+    private final List<Background> bgs;
 
     public PlayScreen(Context context) {
         super(context);
@@ -53,7 +53,10 @@ public class PlayScreen extends Screen {
         player = new Player(context);
         bombs = new ArrayList<>();
 
-        bg = new Background(context.getImage("grass"), cam);
+        bgs = new ArrayList<>();
+        bgs.add(new Background(context.getImage("floor"), cam));
+        bgs.add(new Background(context.getImage("ceil"), cam));
+        bgs.get(1).y = Constants.HEIGHT - 20;
 
         reset();
     }
@@ -61,19 +64,22 @@ public class PlayScreen extends Screen {
     private void reset() {
         state = State.RAD;
 
-        player.x = 50;
+        player.x = 0;
         player.y = 25;
-        player.setFloor(floor);
+        player.setBounds(ceil, floor);
         player.reset();
+
+        cam.zoom = 0.5f;
+
         bombs.clear();
 
         launchAngle = new LaunchAngle(context);
-        launchAngle.x = Constants.WIDTH / 2f - 8;
-        launchAngle.y = Constants.HEIGHT / 2f;
+        launchAngle.x = player.x -8;
+        launchAngle.y = player.y + 37;
 
         launchPower = new LaunchPower(context);
-        launchPower.x = Constants.WIDTH / 2f;
-        launchPower.y = launchAngle.y - 10;
+        launchPower.x = player.x;
+        launchPower.y = player.y + 30;
     }
 
     /**
@@ -120,10 +126,13 @@ public class PlayScreen extends Screen {
 
         // update camera
         cam.position.x = player.x;
+        cam.zoom = 0.5f + (cam.position.x - 50) / 500;
+        if (cam.zoom > 1f) cam.zoom = 1f;
+        cam.position.y = Constants.HEIGHT / (2f / cam.zoom);
         cam.update();
 
         // update background
-        bg.update(dt);
+        for (Background bg : bgs) bg.update(dt);
 
         // add bombs
         addBombs(player.x);
@@ -152,17 +161,18 @@ public class PlayScreen extends Screen {
         sb.begin();
 
         sb.setProjectionMatrix(uiCam.combined);
-        sb.setColor(Constants.PEACH);
+        sb.setColor(Constants.OLIVE);
         sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
-        sb.setColor(1, 1, 1, 1);
-        bg.render(sb);
 
-        font.setColor(Color.BLACK);
+        sb.setColor(1, 1, 1, 1);
+        sb.setProjectionMatrix(cam.combined);
+        for (Background bg : bgs) bg.render(sb);
+
+        font.setColor(Constants.BLACK);
         sb.setProjectionMatrix(debugCamera.combined);
-        font.draw(sb, "player pos: " + (int) player.x + ", " + (int) player.y, 10, Constants.SHEIGHT - 10);
-        font.draw(sb, "player speed: " + player.dx, 10, Constants.SHEIGHT - 25);
-        font.draw(sb, "player stopped: " + player.stopped, 10, Constants.SHEIGHT - 40);
-        if (launchPower != null) font.draw(sb, "power: " + launchPower.getPower(), 10, Constants.SHEIGHT - 55);
+        font.draw(sb, "player pos: " + (int) player.x + ", " + (int) player.y, 10, Constants.SHEIGHT - 60);
+        font.draw(sb, "player speed: " + player.dx, 10, Constants.SHEIGHT - 75);
+        font.draw(sb, "player stopped: " + player.stopped, 10, Constants.SHEIGHT - 90);
 
         sb.setProjectionMatrix(cam.combined);
 
@@ -175,7 +185,6 @@ public class PlayScreen extends Screen {
         player.render(sb);
 
         sb.setColor(1, 1, 1, 1);
-        sb.setProjectionMatrix(uiCam.combined);
         if (launchAngle != null) launchAngle.render(sb);
         if (launchPower != null) launchPower.render(sb);
 

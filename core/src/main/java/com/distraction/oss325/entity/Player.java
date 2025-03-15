@@ -15,7 +15,10 @@ public class Player extends Entity {
     public boolean kicked;
     public boolean stopped;
 
+    private float ceil;
     private float floor;
+
+    private float rad;
 
     public Player(Context context) {
         sprite = context.getImage("poko");
@@ -23,7 +26,8 @@ public class Player extends Entity {
         h = sprite.getRegionHeight();
     }
 
-    public void setFloor(float floor) {
+    public void setBounds(float ceil, float floor) {
+        this.ceil = ceil;
         this.floor = floor;
         y = floor + h / 2;
     }
@@ -46,6 +50,7 @@ public class Player extends Entity {
     public void reset() {
         kicked = false;
         stopped = false;
+        rad = 0;
     }
 
     @Override
@@ -58,12 +63,21 @@ public class Player extends Entity {
             x += dx * dt;
             y += dy * dt;
 
-            if (y - h / 2 < floor) {
-                y = floor + h / 2;
+            // hit ceil
+            if (y + h / 2f > ceil) {
+                y = ceil - h / 2f;
+            }
+            if (dy > 0 && y + h / 2f >= ceil) {
+                // slow down and stop dy
+                dx *= 0.8f;
+                dy = 0;
             }
 
             // hit floor
-            if (dy < 0 && y - h / 2 <= floor) {
+            if (y - h / 2f < floor) {
+                y = floor + h / 2f;
+            }
+            if (dy < 0 && y - h / 2f <= floor) {
                 // slow down and bounce
                 dx *= 0.8f;
                 dy = -dy * 0.7f;
@@ -75,11 +89,13 @@ public class Player extends Entity {
                 dx = 0;
                 dy = 0;
             }
+
+            rad -= Math.min(4 * dt, dx / 2000);
         }
     }
 
     @Override
     public void render(SpriteBatch sb) {
-        Utils.drawCentered(sb, sprite, x, y);
+        Utils.drawRotated(sb, sprite, x, y, rad);
     }
 }
