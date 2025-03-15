@@ -9,6 +9,7 @@ import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
 import com.distraction.oss325.entity.Background;
 import com.distraction.oss325.entity.Bomb;
+import com.distraction.oss325.entity.FontEntity;
 import com.distraction.oss325.entity.Interactable;
 import com.distraction.oss325.entity.LaunchAngle;
 import com.distraction.oss325.entity.LaunchPower;
@@ -36,9 +37,10 @@ public class PlayScreen extends Screen {
 
     private final Player player;
 
-    private final BitmapFont font = new BitmapFont();
+    private final FontEntity distanceFont;
+    private final FontEntity speedFont;
+    private final FontEntity boosterFont;
 
-    private final float ceil = Constants.HEIGHT - 20;
     private final float floor = 20;
 
     private final List<Interactable> interactables;
@@ -46,11 +48,12 @@ public class PlayScreen extends Screen {
     private LaunchAngle launchAngle;
     private LaunchPower launchPower;
     private float rad;
-    private float power;
 
     private final List<Background> bgs;
 
     private final List<Particle> particles;
+
+    private boolean booster = true;
 
     public PlayScreen(Context context) {
         super(context);
@@ -61,8 +64,6 @@ public class PlayScreen extends Screen {
 
         bgs = new ArrayList<>();
         bgs.add(new Background(context.getImage("floor"), cam));
-        bgs.add(new Background(context.getImage("ceil"), cam));
-        bgs.get(1).y = Constants.HEIGHT - 20;
 
         particles = new ArrayList<>();
 
@@ -71,6 +72,52 @@ public class PlayScreen extends Screen {
         in = new Transition(context, Transition.Type.CHECKERED_IN, 0.5f, () -> ignoreInput = false);
         in.start();
         out = new Transition(context, Transition.Type.CHECKERED_OUT, 0.5f, () -> context.sm.replace(new PlayScreen(context)));
+
+        BitmapFont font = context.getFont(Context.FONT_NAME_M5X716, 4f);
+        distanceFont = new FontEntity(
+            font,
+            getDistanceString(),
+            Constants.WIDTH / 2f,
+            Constants.HEIGHT - 30,
+            FontEntity.Alignment.CENTER
+        );
+        distanceFont.setColor(Constants.BLACK);
+
+        font = context.getFont(Context.FONT_NAME_M5X716, 2f);
+        speedFont = new FontEntity(
+            font,
+            getSpeedString(),
+            10,
+            Constants.HEIGHT - 18,
+            FontEntity.Alignment.LEFT
+        );
+        speedFont.setColor(Constants.BLACK);
+
+        boosterFont = new FontEntity(
+            font,
+            "Booster Available! [SPACE]",
+            Constants.WIDTH / 2f,
+            8,
+            FontEntity.Alignment.CENTER
+        );
+        boosterFont.setColor(Constants.WHITE);
+
+    }
+
+    private int getSpeed() {
+        return (int) (player.dx / 100);
+    }
+
+    private String getSpeedString() {
+        return getSpeed() + "m/s";
+    }
+
+    private int getDistance() {
+        return (int) (player.x / 100);
+    }
+
+    private String getDistanceString() {
+        return getDistance() + "m";
     }
 
     private void reset() {
@@ -78,7 +125,7 @@ public class PlayScreen extends Screen {
 
         player.x = 0;
         player.y = 25;
-        player.setBounds(ceil, floor);
+        player.setBounds(Constants.HEIGHT, floor);
         player.reset();
 
         cam.zoom = 0.5f;
@@ -90,8 +137,8 @@ public class PlayScreen extends Screen {
         launchAngle.y = player.y + 37;
 
         launchPower = new LaunchPower(context);
-        launchPower.x = player.x;
-        launchPower.y = player.y + 25;
+        launchPower.x = launchAngle.x + 8;
+        launchPower.y = launchAngle.y - 12;
     }
 
     /**
@@ -118,6 +165,16 @@ public class PlayScreen extends Screen {
         return list;
     }
 
+    private void calculateZoom(float dt) {
+        if (state == State.GO) {
+            cam.zoom += dt;
+            if (cam.zoom > 1f) cam.zoom = 1f;
+        } else {
+            cam.zoom -= dt;
+            if (cam.zoom < 0.5f) cam.zoom = 0.5f;
+        }
+    }
+
     @Override
     public void input() {
         if (ignoreInput) return;
@@ -128,16 +185,24 @@ public class PlayScreen extends Screen {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (state == State.RAD) {
+            if (state == State.GO && !player.stopped) {
+                if (booster) {
+                    booster = false;
+                    state = State.RAD;
+                }
+            } else if (state == State.RAD) {
                 rad = launchAngle.rad;
                 state = State.POWER;
             } else if (state == State.POWER) {
-                power = launchPower.getPower();
+                float power = launchPower.getPower();
+                if (player.launched) {
+                    player.boost(rad, power);
+                } else {
+                    player.launch(rad, power);
+                }
                 state = State.GO;
-                player.kick(rad, power);
-
-                launchAngle = null;
-                launchPower = null;
+                launchAngle.reset();
+                launchPower.reset();
             }
         }
     }
@@ -149,13 +214,14 @@ public class PlayScreen extends Screen {
         out.update(dt);
 
         // update player
-        player.update(dt);
+        if (state == State.GO) {
+            player.update(dt);
+        }
 
         // update camera
         cam.position.x = player.x;
-        cam.zoom = 0.5f + (cam.position.x - 50) / 500;
-        if (cam.zoom > 1f) cam.zoom = 1f;
-        cam.position.y = Constants.HEIGHT / (2f / cam.zoom);
+        calculateZoom(dt);
+        cam.position.y = Constants.HEIGHT / (2f / cam.zoom) + player.y / 2 * (1 - cam.zoom);
         cam.update();
 
         // update background
@@ -185,8 +251,18 @@ public class PlayScreen extends Screen {
         }
 
         // update launcher
+        if (player.launched) {
+            launchAngle.x = player.x - 50;
+            launchAngle.y = player.y;
+            launchPower.x = launchAngle.x + 8;
+            launchPower.y = launchAngle.y - 12;
+        }
         if (state == State.RAD) launchAngle.update(dt);
         if (state == State.POWER) launchPower.update(dt);
+
+        // update distance
+        distanceFont.setText(getDistanceString());
+        speedFont.setText(getSpeedString());
     }
 
     @Override
@@ -202,11 +278,10 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(cam.combined);
         for (Background bg : bgs) bg.render(sb);
 
-        font.setColor(Constants.BLACK);
-        sb.setProjectionMatrix(debugCamera.combined);
-        font.draw(sb, "player pos: " + (int) player.x + ", " + (int) player.y, 10, Constants.SHEIGHT - 60);
-        font.draw(sb, "player speed: " + player.dx, 10, Constants.SHEIGHT - 75);
-        font.draw(sb, "player stopped: " + player.stopped, 10, Constants.SHEIGHT - 90);
+        sb.setProjectionMatrix(uiCam.combined);
+        distanceFont.render(sb);
+        speedFont.render(sb);
+        if (booster && player.launched) boosterFont.render(sb);
 
         sb.setProjectionMatrix(cam.combined);
 
@@ -220,8 +295,10 @@ public class PlayScreen extends Screen {
         for (Particle p : particles) p.render(sb);
 
         sb.setColor(1, 1, 1, 1);
-        if (launchAngle != null) launchAngle.render(sb);
-        if (launchPower != null) launchPower.render(sb);
+        if (state == State.RAD || state == State.POWER) {
+            launchAngle.render(sb);
+            launchPower.render(sb);
+        }
 
         sb.setColor(1, 1, 1, 1);
         sb.setProjectionMatrix(uiCam.combined);

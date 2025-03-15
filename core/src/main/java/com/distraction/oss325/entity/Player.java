@@ -12,7 +12,7 @@ public class Player extends Entity {
 
     private final TextureRegion sprite;
 
-    public boolean kicked;
+    public boolean launched;
     public boolean stopped;
 
     private float ceil;
@@ -32,24 +32,41 @@ public class Player extends Entity {
         y = floor + h / 2;
     }
 
-    public void kick(float rad, float speed) {
-        if (kicked) return;
-        kicked = true;
+    public void launch(float rad, float speed) {
+        if (launched) return;
+        launched = true;
         dx = MathUtils.cos(rad) * speed;
         dy = MathUtils.sin(rad) * speed;
+    }
 
-        System.out.println("kick at " + rad + ", " + speed);
+    public void boost(float rad, float speed) {
+        // get current speed
+        float s = (float) Math.sqrt(dx * dx + dy * dy) + speed;
+        dx = MathUtils.cos(rad) * s;
+        dy = MathUtils.sin(rad) * s;
+        limit();
+    }
+
+    /**
+     * Limits the player's velocity to 2000.
+     */
+    public void limit() {
+        float s = (float) Math.sqrt(dx * dx + dy * dy);
+        if (s > 2000) {
+            dx = MathUtils.cos(rad) * 2000;
+            dy = MathUtils.sin(rad) * 2000;
+        }
     }
 
     public void reset() {
-        kicked = false;
+        launched = false;
         stopped = false;
         rad = 0;
     }
 
     @Override
     public void update(float dt) {
-        if (kicked && !stopped) {
+        if (launched && !stopped) {
             // gravity
             dy -= GRAVITY * dt;
 

@@ -24,6 +24,10 @@ public class LaunchPower extends Entity {
         h = bar.getRegionHeight();
     }
 
+    public void reset() {
+        timer = 0;
+    }
+
     public float getPower() {
         return power * MAX_POWER;
     }

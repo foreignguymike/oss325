@@ -3,8 +3,6 @@ size:512,64
 repeat:none
 bomb
 bounds:353,20,29,29
-ceil
-bounds:384,30,29,32
 explosion
 bounds:1,26,204,36
 floor
@@ -12,11 +10,11 @@ bounds:1,4,64,20
 launchanglearrow
 bounds:67,15,25,9
 launchanglebg
-bounds:415,46,16,16
+bounds:384,35,16,27
 launchbarbg
 bounds:315,51,60,11
 launchbardownarrow
-bounds:384,23,7,5
+bounds:94,19,7,5
 pixel
 bounds:1,1,1,1
 poko

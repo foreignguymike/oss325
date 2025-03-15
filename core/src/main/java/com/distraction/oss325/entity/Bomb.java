@@ -25,6 +25,7 @@ public class Bomb extends Interactable {
         player.dy = Math.abs(player.dy);
         player.dy *= 2f;
         if (player.dy < 150f) player.dy = 150f;
+        player.limit();
 
         for (int j = 0; j < 5; j++) {
             float ex = MathUtils.random(x - 20, x + 20);
