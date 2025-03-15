@@ -45,6 +45,7 @@ public class Player extends Entity {
         dx *= 1.5f;
         dy = Math.abs(dy);
         dy *= 2f;
+//        if (dy < 10) dy = 10;
     }
 
     public void reset() {

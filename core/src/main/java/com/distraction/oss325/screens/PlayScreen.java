@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
@@ -11,6 +12,7 @@ import com.distraction.oss325.entity.Background;
 import com.distraction.oss325.entity.Bomb;
 import com.distraction.oss325.entity.LaunchAngle;
 import com.distraction.oss325.entity.LaunchPower;
+import com.distraction.oss325.entity.Particle;
 import com.distraction.oss325.entity.Player;
 
 import java.util.ArrayList;
@@ -46,6 +48,8 @@ public class PlayScreen extends Screen {
 
     private final List<Background> bgs;
 
+    private final List<Particle> particles;
+
     public PlayScreen(Context context) {
         super(context);
         pixel = context.getPixel();
@@ -58,7 +62,13 @@ public class PlayScreen extends Screen {
         bgs.add(new Background(context.getImage("ceil"), cam));
         bgs.get(1).y = Constants.HEIGHT - 20;
 
+        particles = new ArrayList<>();
+
         reset();
+
+        in = new Transition(context, Transition.Type.CHECKERED_IN, 0.5f, () -> ignoreInput = false);
+        in.start();
+        out = new Transition(context, Transition.Type.CHECKERED_OUT, 0.5f, () -> context.sm.replace(new PlayScreen(context)));
     }
 
     private void reset() {
@@ -74,7 +84,7 @@ public class PlayScreen extends Screen {
         bombs.clear();
 
         launchAngle = new LaunchAngle(context);
-        launchAngle.x = player.x -8;
+        launchAngle.x = player.x - 8;
         launchAngle.y = player.y + 37;
 
         launchPower = new LaunchPower(context);
@@ -100,8 +110,13 @@ public class PlayScreen extends Screen {
 
     @Override
     public void input() {
+        if (ignoreInput) return;
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-            reset();
+            ignoreInput = true;
+            out.setCallback(() -> {
+                context.sm.replace(new PlayScreen(context));
+            });
+            out.start();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -119,8 +134,23 @@ public class PlayScreen extends Screen {
         }
     }
 
+    private void createExplosion(float x, float y) {
+        particles.add(
+            new Particle(
+                context.getImage("explosion").split(34, 36)[0],
+                2 / 60f,
+                x,
+                y
+            )
+        );
+    }
+
     @Override
     public void update(float dt) {
+        // update transitions
+        in.update(dt);
+        out.update(dt);
+
         // update player
         player.update(dt);
 
@@ -144,10 +174,21 @@ public class PlayScreen extends Screen {
             if (player.intersects(bomb)) {
                 bomb.remove = true;
                 player.bomb();
+                for (int j = 0; j < 5; j++) {
+                    createExplosion(
+                        MathUtils.random(bomb.x - 20, bomb.x + 20),
+                        MathUtils.random(bomb.y - 20, bomb.y + 20)
+                    );
+                }
             }
-            if (bomb.remove || bomb.x < player.x - Constants.WIDTH) {
-                bombs.remove(i--);
-            }
+            if (bomb.remove || bomb.x < player.x - Constants.WIDTH) bombs.remove(i--);
+        }
+
+        // update particles
+        for (int i = 0; i < particles.size(); i++) {
+            Particle p = particles.get(i);
+            p.update(dt);
+            if (p.remove) particles.remove(i--);
         }
 
         // update launcher
@@ -161,7 +202,7 @@ public class PlayScreen extends Screen {
         sb.begin();
 
         sb.setProjectionMatrix(uiCam.combined);
-        sb.setColor(Constants.OLIVE);
+        sb.setColor(Constants.PINK);
         sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
 
         sb.setColor(1, 1, 1, 1);
@@ -185,8 +226,16 @@ public class PlayScreen extends Screen {
         player.render(sb);
 
         sb.setColor(1, 1, 1, 1);
+        for (Particle p : particles) p.render(sb);
+
+        sb.setColor(1, 1, 1, 1);
         if (launchAngle != null) launchAngle.render(sb);
         if (launchPower != null) launchPower.render(sb);
+
+        sb.setColor(1, 1, 1, 1);
+        sb.setProjectionMatrix(uiCam.combined);
+        in.render(sb);
+        out.render(sb);
 
         sb.end();
 

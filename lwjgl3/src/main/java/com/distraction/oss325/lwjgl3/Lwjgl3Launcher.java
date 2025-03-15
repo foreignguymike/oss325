@@ -21,8 +21,12 @@ public class Lwjgl3Launcher {
         configuration.setTitle(Constants.TITLE);
         configuration.useVsync(true);
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        configuration.setWindowedMode(Constants.SWIDTH, Constants.SHEIGHT);
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        if (Constants.FULLSCREEN) {
+            configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        } else {
+            configuration.setWindowedMode(Constants.SWIDTH, Constants.SHEIGHT);
+            configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        }
         return configuration;
     }
 }

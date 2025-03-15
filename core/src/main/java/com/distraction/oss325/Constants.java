@@ -12,6 +12,8 @@ public class Constants {
     public static final int SWIDTH = WIDTH * SCALE;
     public static final int SHEIGHT = HEIGHT * SCALE;
 
+    public static final boolean FULLSCREEN = false;
+
     // Island Joy 16
     // https://lospec.com/palette-list/island-joy-16
     public static final Color[] COLORS = new Color[] {
@@ -37,6 +39,8 @@ public class Constants {
     public static final Color BLACK = COLORS[4];
     public static final Color DARK_GREEN = COLORS[5];
     public static final Color GREEN = COLORS[6];
+    public static final Color PURPLE = COLORS[11];
+    public static final Color PINK = COLORS[13];
     public static final Color PEACH = COLORS[14];
     public static final Color OLIVE = COLORS[15];
 }

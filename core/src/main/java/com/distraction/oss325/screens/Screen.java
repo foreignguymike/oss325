@@ -18,6 +18,11 @@ public abstract class Screen {
 
     protected SpriteBatch sb;
 
+    protected boolean ignoreInput = true;
+
+    protected Transition in = null;
+    protected Transition out = null;
+
     protected Screen(Context context) {
         this.context = context;
         this.sb = context.sb;
