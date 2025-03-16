@@ -20,7 +20,8 @@ public class Bomb extends Interactable {
 
     @Override
     public void interact(Context context, Player player, List<Particle> particles) {
-        remove = true;
+        if (!visible) return;
+        visible = false;
         player.dx *= 1.5f;
         player.dy = Math.abs(player.dy);
         player.dy *= 2f;
@@ -43,6 +44,6 @@ public class Bomb extends Interactable {
 
     @Override
     public void render(SpriteBatch sb) {
-        Utils.drawCentered(sb, sprite, x, y);
+        if (visible) Utils.drawCentered(sb, sprite, x, y);
     }
 }

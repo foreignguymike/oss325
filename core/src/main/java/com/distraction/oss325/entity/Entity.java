@@ -9,6 +9,7 @@ abstract class Entity {
     public float w, h;
     public float dx, dy;
 
+    public boolean visible = true;
     public boolean remove = false;
 
     public boolean contains(float x, float y) {

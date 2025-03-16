@@ -48,14 +48,14 @@ public class Player extends Entity {
     }
 
     /**
-     * Limits the player's velocity to 2000.
+     * Limits the player's velocity to 3000.
      */
     public void limit() {
         float s = (float) Math.sqrt(dx * dx + dy * dy);
         float rad = MathUtils.atan2(dy, dx);
         if (s > 2000) {
-            dx = MathUtils.cos(rad) * 2000;
-            dy = MathUtils.sin(rad) * 2000;
+            dx = MathUtils.cos(rad) * 2100;
+            dy = MathUtils.sin(rad) * 2100;
         }
     }
 

@@ -24,7 +24,11 @@ public class SlowSign extends Interactable {
     public void interact(Context context, Player player, List<Particle> particles) {
         if (sprite != sprites[1]) {
             sprite = sprites[1];
-            player.dx *= 0.7f;
+            if (player.dy > 0) {
+                player.dx *= 0.9f;
+            } else {
+                player.dx *= 0.7f;
+            }
             player.dy = Math.abs(player.dy);
         }
     }

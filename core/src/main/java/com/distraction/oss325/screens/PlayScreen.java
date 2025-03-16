@@ -13,6 +13,7 @@ import com.distraction.oss325.entity.FontEntity;
 import com.distraction.oss325.entity.Interactable;
 import com.distraction.oss325.entity.LaunchAngle;
 import com.distraction.oss325.entity.LaunchPower;
+import com.distraction.oss325.entity.Mini;
 import com.distraction.oss325.entity.Particle;
 import com.distraction.oss325.entity.Player;
 import com.distraction.oss325.entity.SlowSign;
@@ -44,6 +45,7 @@ public class PlayScreen extends Screen {
     private final float floor = 20;
 
     private final List<Interactable> interactables;
+    private final Mini mini;
 
     private LaunchAngle launchAngle;
     private LaunchPower launchPower;
@@ -53,7 +55,7 @@ public class PlayScreen extends Screen {
 
     private final List<Particle> particles;
 
-    private boolean booster = true;
+    private int boosterCount = 3;
 
     public PlayScreen(Context context) {
         super(context);
@@ -61,6 +63,7 @@ public class PlayScreen extends Screen {
 
         player = new Player(context);
         interactables = new ArrayList<>();
+        mini = new Mini(context, cam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 100);
 
         bgs = new ArrayList<>();
         bgs.add(new Background(context.getImage("floor"), cam));
@@ -149,18 +152,28 @@ public class PlayScreen extends Screen {
      * - Everything else is a BOMB.
      */
     private List<Interactable> nextInteractables(int x) {
+        int cx;
+        if (interactables.isEmpty()) cx = INTERVAL;
+        else cx = (int) interactables.getLast().x + INTERVAL;
+
         List<Interactable> list = new ArrayList<>();
-        int index = x / INTERVAL;
-        if (index % 10 == 0) {
-            list.add(new Stop(context));
-        } else if (index % 3 == 0) {
-            list.add(new SlowSign(context));
-        } else {
-            list.add(new Bomb(context));
-        }
-        for (Interactable i : list) {
-            i.x = x;
-            i.y = floor + i.h / 2;
+        while (cx <= x) {
+            List<Interactable> temp = new ArrayList<>();
+            int index = cx / INTERVAL;
+            if (index % 10 == 0) {
+                temp.add(new Stop(context));
+            } else if (index % 3 == 0) {
+                temp.add(new SlowSign(context));
+            } else {
+                temp.add(new Bomb(context));
+            }
+            for (Interactable i : temp) {
+                i.x = cx;
+                i.y = floor + i.h / 2;
+            }
+            list.addAll(temp);
+            temp.clear();
+            cx = (int) list.getLast().x + INTERVAL;
         }
         return list;
     }
@@ -186,8 +199,8 @@ public class PlayScreen extends Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             if (state == State.GO && !player.stopped) {
-                if (booster) {
-                    booster = false;
+                if (boosterCount > 0) {
+                    boosterCount--;
                     state = State.RAD;
                 }
             } else if (state == State.RAD) {
@@ -228,7 +241,10 @@ public class PlayScreen extends Screen {
         for (Background bg : bgs) bg.update(dt);
 
         // add interactables
-        int nextItem = Utils.ceilTo((int) (player.x + Constants.WIDTH / 2f), INTERVAL);
+        int px = Utils.floorTo((int) player.x, INTERVAL);
+        int nextItem;
+        if (interactables.isEmpty()) nextItem = INTERVAL * 5;
+        else nextItem = px + INTERVAL * 5;
         if (interactables.isEmpty() || interactables.getLast().x < nextItem) {
             interactables.addAll(nextInteractables(nextItem));
         }
@@ -240,8 +256,9 @@ public class PlayScreen extends Screen {
             if (player.intersects(e)) {
                 e.interact(context, player, particles);
             }
-            if (e.remove || e.x < player.x - Constants.WIDTH) interactables.remove(i--);
+            if (e.remove || e.x < player.x - INTERVAL * 6) interactables.remove(i--);
         }
+        mini.update(dt);
 
         // update particles
         for (int i = 0; i < particles.size(); i++) {
@@ -281,7 +298,7 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(uiCam.combined);
         distanceFont.render(sb);
         speedFont.render(sb);
-        if (booster && player.launched) boosterFont.render(sb);
+        if (boosterCount > 0 && player.launched) boosterFont.render(sb);
 
         sb.setProjectionMatrix(cam.combined);
 
@@ -294,7 +311,11 @@ public class PlayScreen extends Screen {
         sb.setColor(1, 1, 1, 1);
         for (Particle p : particles) p.render(sb);
 
+        sb.setProjectionMatrix(uiCam.combined);
+        mini.render(sb);
+
         sb.setColor(1, 1, 1, 1);
+        sb.setProjectionMatrix(cam.combined);
         if (state == State.RAD || state == State.POWER) {
             launchAngle.render(sb);
             launchPower.render(sb);
