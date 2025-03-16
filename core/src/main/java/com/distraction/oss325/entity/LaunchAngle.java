@@ -29,7 +29,7 @@ public class LaunchAngle extends Entity {
 
     @Override
     public void update(float dt) {
-        rad += radStep * dt;
+        rad += radStep * 2 * dt;
         if (rad > MAX_RAD) {
             rad = MAX_RAD;
             radStep = -radStep;

@@ -21,11 +21,17 @@ public class Bomb extends Interactable {
     @Override
     public void interact(Context context, Player player, List<Particle> particles) {
         remove = true;
+        System.out.println("bomb hit: old player vel: " + player.dx + ", " + player.dy);
         player.dx *= 1.5f;
+        System.out.println("bomb hit: 1: " + player.dx + ", " + player.dy);
         player.dy = Math.abs(player.dy);
+        System.out.println("bomb hit: 2: " + player.dx + ", " + player.dy);
         player.dy *= 2f;
+        System.out.println("bomb hit: 3: " + player.dx + ", " + player.dy);
         if (player.dy < 150f) player.dy = 150f;
+        System.out.println("bomb hit: 4: " + player.dx + ", " + player.dy);
         player.limit();
+        System.out.println("bomb hit: new player vel: " + player.dx + ", " + player.dy + "\n");
 
         for (int j = 0; j < 5; j++) {
             float ex = MathUtils.random(x - 20, x + 20);
