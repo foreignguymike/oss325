@@ -128,7 +128,7 @@ public class Player extends Entity {
         if (!launched) Utils.drawRotated(sb, poko, x, y, rad);
         else Utils.drawRotated(sb, pokoShock.getImage(), x, y, rad);
 
-        sb.setColor(1, 1, 1, 0.5f);
+        sb.setColor(1, 1, 1, 0.7f);
         if (dx > 1500) Utils.drawRotated(sb, dbz.getImage(), x, y, drad);
     }
 }

@@ -26,6 +26,7 @@ import java.util.List;
 public class PlayScreen extends Screen {
 
     private final int INTERVAL = 500;
+    private final int BOOSTER_INTERVAL = 1000;
 
     private enum State {
         RAD,
@@ -57,7 +58,7 @@ public class PlayScreen extends Screen {
 
     private final List<Particle> particles;
 
-    private int boosterCount = 3;
+    private boolean booster = true;
 
     public PlayScreen(Context context) {
         super(context);
@@ -66,7 +67,7 @@ public class PlayScreen extends Screen {
 
         player = new Player(context);
         interactables = new ArrayList<>();
-        mini = new Mini(context, cam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 100);
+        mini = new Mini(context, cam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 40);
 
         bgs = new ArrayList<>();
         bgs.add(new Background(context.getImage("floor"), cam));
@@ -83,9 +84,9 @@ public class PlayScreen extends Screen {
         distanceFont = new FontEntity(
             font,
             getDistanceString(),
-            Constants.WIDTH / 2f,
-            Constants.HEIGHT - 30,
-            FontEntity.Alignment.CENTER
+            10,
+            Constants.HEIGHT - 26,
+            FontEntity.Alignment.LEFT
         );
         distanceFont.setColor(Constants.BLACK);
 
@@ -94,7 +95,7 @@ public class PlayScreen extends Screen {
             font,
             getSpeedString(),
             10,
-            Constants.HEIGHT - 18,
+            distanceFont.y - 26,
             FontEntity.Alignment.LEFT
         );
         speedFont.setColor(Constants.BLACK);
@@ -202,8 +203,8 @@ public class PlayScreen extends Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             if (state == State.GO && !player.stopped) {
-                if (boosterCount > 0) {
-                    boosterCount--;
+                if (booster) {
+                    booster = false;
                     state = State.RAD;
                 }
             } else if (state == State.RAD) {
@@ -230,14 +231,20 @@ public class PlayScreen extends Screen {
         out.update(dt);
 
         // update player
+        int currentBoosterInterval = getDistance() / BOOSTER_INTERVAL;
         if (state == State.GO) {
             player.update(dt);
         }
+        int newBoosterInterval = getDistance() / BOOSTER_INTERVAL;
+        if (currentBoosterInterval != newBoosterInterval) booster = true;
 
         // update camera
         cam.position.x = player.x;
         calculateZoom(dt);
-        cam.position.y = Constants.HEIGHT / (2f / cam.zoom) + player.y / 2 * (1 - cam.zoom);
+        float effectiveHeight = Constants.HEIGHT * cam.zoom;
+        float lower = effectiveHeight / 2f;
+        float upper = Constants.HEIGHT - effectiveHeight / 2f;
+        cam.position.y = MathUtils.clamp(player.y, lower, upper);
         cam.update();
 
         // update backgrounds
@@ -298,11 +305,6 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(cam.combined);
         for (Background bg : bgs) bg.render(sb);
 
-        sb.setProjectionMatrix(uiCam.combined);
-        distanceFont.render(sb);
-        speedFont.render(sb);
-        if (boosterCount > 0 && player.launched) boosterFont.render(sb);
-
         sb.setProjectionMatrix(cam.combined);
 
         sb.setColor(1, 1, 1, 1);
@@ -314,7 +316,7 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(cam.combined);
         sb.setColor(1, 1, 1, 1);
         player.render(sb);
-        if (player.dx > 1500) particles.add(
+        if (state == State.GO && player.dx > 1500) particles.add(
             new Particle(
                 explosionSprites,
                 2 / 60f,
@@ -332,6 +334,11 @@ public class PlayScreen extends Screen {
             launchAngle.render(sb);
             launchPower.render(sb);
         }
+
+        sb.setProjectionMatrix(uiCam.combined);
+        distanceFont.render(sb);
+        speedFont.render(sb);
+        if (booster && player.launched) boosterFont.render(sb);
 
         sb.setColor(1, 1, 1, 1);
         sb.setProjectionMatrix(uiCam.combined);
