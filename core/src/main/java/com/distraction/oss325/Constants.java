@@ -12,7 +12,7 @@ public class Constants {
     public static final int SWIDTH = WIDTH * SCALE;
     public static final int SHEIGHT = HEIGHT * SCALE;
 
-    public static final boolean FULLSCREEN = true;
+    public static final boolean FULLSCREEN = false;
 
     // Island Joy 16
     // https://lospec.com/palette-list/island-joy-16

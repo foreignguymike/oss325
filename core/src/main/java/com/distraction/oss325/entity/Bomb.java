@@ -34,7 +34,7 @@ public class Bomb extends Interactable {
             particles.add(
                 new Particle(
                     context.getImage("explosion").split(34, 36)[0],
-                    2 / 60f,
+                    5 / 60f,
                     ex,
                     ey
                 )

@@ -40,7 +40,8 @@ public class PlayScreen extends Screen {
     private final TextureRegion pixel;
 
     private final Player player;
-    private final TextureRegion[] explosionSprites;
+    private final TextureRegion[] explosion;
+    private final TextureRegion[] blueExplosion;
 
     private final FontEntity distanceFont;
     private final FontEntity speedFont;
@@ -60,12 +61,14 @@ public class PlayScreen extends Screen {
 
     private final List<Particle> particles;
 
-    private boolean booster = true;
+    private TextureRegion booster;
+    private int boosterCount = 3;
 
     public PlayScreen(Context context) {
         super(context);
         pixel = context.getPixel();
-        explosionSprites = context.getImage("explosion").split(34, 36)[0];
+        explosion = context.getImage("explosion").split(34, 36)[0];
+        blueExplosion = context.getImage("blueexplosion").split(15, 15)[0];
 
         player = new Player(context);
         interactables = new ArrayList<>();
@@ -109,14 +112,15 @@ public class PlayScreen extends Screen {
         );
         speedFont.setColor(Constants.BLACK);
 
+        booster = context.getImage("boost");
         boosterFont = new FontEntity(
             font,
-            "Booster Available! [SPACE]",
-            Constants.WIDTH / 2f,
-            8,
-            FontEntity.Alignment.CENTER
+            "[SPACE]",
+            Constants.WIDTH - 16,
+            Constants.HEIGHT - 50,
+            FontEntity.Alignment.RIGHT
         );
-        boosterFont.setColor(Constants.WHITE);
+        boosterFont.setColor(Constants.BLACK);
 
     }
 
@@ -160,7 +164,7 @@ public class PlayScreen extends Screen {
     /**
      * Get the next item in the list. Rules:
      * - Every INTERVAL is a new item.
-     * - Every 10 items is a STOP.
+     * - Every 13 items is a STOP.
      * - Every 3 items is a SLOW.
      * - Everything else is a BOMB.
      */
@@ -173,7 +177,7 @@ public class PlayScreen extends Screen {
         while (cx <= x) {
             List<Interactable> temp = new ArrayList<>();
             int index = cx / INTERVAL;
-            if (index % 10 == 0) {
+            if (index % 13 == 0) {
                 temp.add(new Stop(context));
             } else if (index % 3 == 0) {
                 temp.add(new SlowSign(context));
@@ -212,8 +216,8 @@ public class PlayScreen extends Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             if (state == State.GO && !player.stopped) {
-                if (booster) {
-                    booster = false;
+                if (boosterCount > 0) {
+                    boosterCount--;
                     state = State.RAD;
                 }
             } else if (state == State.RAD) {
@@ -245,7 +249,10 @@ public class PlayScreen extends Screen {
             player.update(dt);
         }
         int newBoosterInterval = getDistance() / BOOSTER_INTERVAL;
-        if (currentBoosterInterval != newBoosterInterval) booster = true;
+        if (currentBoosterInterval != newBoosterInterval) {
+            boosterCount++;
+            if (boosterCount > 3) boosterCount = 3;
+        }
 
         // update camera
         cam.position.x = player.x;
@@ -327,14 +334,29 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(cam.combined);
         sb.setColor(1, 1, 1, 1);
         player.render(sb);
-        if (state == State.GO && player.dx > 1500) particles.add(
-            new Particle(
-                explosionSprites,
-                2 / 60f,
-                MathUtils.random(-10, 10) + player.x,
-                MathUtils.random(-10, 10) + player.y
-            )
-        );
+        if (state == State.GO) {
+            if (player.dx > 3000) {
+                for (int i = 0; i < 4; i++) {
+                    particles.add(
+                        new Particle(
+                            blueExplosion,
+                            2.5f / 60f,
+                            MathUtils.random(-30, 30) + player.x,
+                            MathUtils.random(-30, 30) + player.y
+                        )
+                    );
+                }
+            } else if (player.dx > 1500) {
+                particles.add(
+                    new Particle(
+                        explosion,
+                        3 / 60f,
+                        MathUtils.random(-10, 10) + player.x,
+                        MathUtils.random(-10, 10) + player.y
+                    )
+                );
+            }
+        }
 
         sb.setColor(1, 1, 1, 1);
         for (Particle p : particles) p.render(sb);
@@ -349,7 +371,10 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(uiCam.combined);
         distanceFont.render(sb);
         speedFont.render(sb);
-        if (booster && player.launched) boosterFont.render(sb);
+        if (boosterCount > 0 && player.launched) boosterFont.render(sb);
+        for (int i = 0; i < boosterCount; i++) {
+            sb.draw(booster, Constants.WIDTH - 36 - i * 25, Constants.HEIGHT - 36);
+        }
 
         sb.setColor(1, 1, 1, 1);
         sb.setProjectionMatrix(uiCam.combined);

@@ -14,6 +14,7 @@ public class Player extends Entity {
     private final TextureRegion poko;
     private final Animation pokoShock;
     private final Animation dbz;
+    private final Animation bluedbz;
 
     public boolean launched;
     public boolean stopped;
@@ -31,6 +32,7 @@ public class Player extends Entity {
 
         pokoShock = new Animation(context.getImage("pokoshock").split(36, 25)[0], 2/60f);
         dbz = new Animation(context.getImage("dbz").split(92, 47)[0], 2/60f);
+        bluedbz = new Animation(context.getImage("bluedbz").split(92, 47)[0], 2/60f);
     }
 
     public void setBounds(float ceil, float floor) {
@@ -55,14 +57,15 @@ public class Player extends Entity {
     }
 
     /**
-     * Limits the player's velocity to 3000.
+     * Limits the player's velocity.
      */
     public void limit() {
-        float s = (float) Math.sqrt(dx * dx + dy * dy);
-        float rad = MathUtils.atan2(dy, dx);
-        if (s > 2000) {
-            dx = MathUtils.cos(rad) * 2100;
-            dy = MathUtils.sin(rad) * 2100;
+//        float s = (float) Math.sqrt(dx * dx + dy * dy);
+//        float rad = MathUtils.atan2(dy, dx);
+        if (dx > 4200) {
+            dx = 4200;
+//            dx = MathUtils.cos(rad) * 4100;
+//            dy = MathUtils.sin(rad) * 4100;
         }
     }
 
@@ -120,6 +123,7 @@ public class Player extends Entity {
         }
         pokoShock.update(dt);
         dbz.update(dt);
+        bluedbz.update(dt);
         drad = MathUtils.atan2(dy, dx);
     }
 
@@ -129,6 +133,7 @@ public class Player extends Entity {
         else Utils.drawRotated(sb, pokoShock.getImage(), x, y, rad);
 
         sb.setColor(1, 1, 1, 0.7f);
-        if (dx > 1500) Utils.drawRotated(sb, dbz.getImage(), x, y, drad);
+        if (dx > 3000) Utils.drawRotated(sb, bluedbz.getImage(), x, y, drad);
+        else if (dx > 1500) Utils.drawRotated(sb, dbz.getImage(), x, y, drad);
     }
 }

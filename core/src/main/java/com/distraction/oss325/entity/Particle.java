@@ -20,7 +20,9 @@ public class Particle extends Entity {
     @Override
     public void update(float dt) {
         animation.update(dt);
-        if (animation.getPlayCount() > 1) remove = true;
+        if (animation.getFinishCount() > 0) {
+            remove = true;
+        }
     }
 
     @Override

@@ -9,15 +9,15 @@ public class Animation {
 
     private float timer;
     private int frame;
-    private int playCount;
+    private int finishCount = 0;
 
     public Animation(TextureRegion[] images, float interval) {
         this.images = images;
         this.interval = interval;
     }
 
-    public int getPlayCount() {
-        return playCount;
+    public int getFinishCount() {
+        return finishCount;
     }
 
     public void update(float dt) {
@@ -26,9 +26,11 @@ public class Animation {
         if (timer >= interval) {
             timer -= interval;
             frame++;
+            if (frame == images.length - 1) {
+                finishCount++;
+            }
             if (frame >= images.length) {
                 frame = 0;
-                playCount++;
             }
         }
     }
