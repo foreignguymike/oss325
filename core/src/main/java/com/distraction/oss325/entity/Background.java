@@ -10,11 +10,17 @@ public class Background extends Entity {
 
     private final TextureRegion image;
     private final Camera cam;
+    private final float parallax;
     private final int count;
 
     public Background(TextureRegion image, Camera cam) {
+        this(image, cam, 1f);
+    }
+
+    public Background(TextureRegion image, Camera cam, float parallax) {
         this.image = image;
         this.cam = cam;
+        this.parallax = parallax;
         w = image.getRegionWidth();
         h = image.getRegionHeight();
         count = (int) (Constants.WIDTH / w) + 3;
@@ -22,7 +28,7 @@ public class Background extends Entity {
 
     @Override
     public void update(float dt) {
-        x = Utils.floorTo((int) (cam.position.x - Constants.WIDTH / 2f - w), (int) w);
+        x = (-cam.position.x / parallax) % w;
     }
 
     @Override

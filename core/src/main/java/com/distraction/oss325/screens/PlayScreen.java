@@ -2,6 +2,7 @@ package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -55,6 +56,7 @@ public class PlayScreen extends Screen {
     private float rad;
 
     private final List<Background> bgs;
+    private final OrthographicCamera bgCam; // super hacky, too lazy
 
     private final List<Particle> particles;
 
@@ -70,7 +72,14 @@ public class PlayScreen extends Screen {
         mini = new Mini(context, cam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 40);
 
         bgs = new ArrayList<>();
+        bgs.add(new Background(context.getImage("bg2"), cam, 20));
+        bgs.add(new Background(context.getImage("bg1"), cam, 15));
         bgs.add(new Background(context.getImage("floor"), cam));
+        bgs.get(0).y = 30;
+        bgs.get(1).y = 0;
+
+        bgCam = new OrthographicCamera();
+        bgCam.setToOrtho(false, Constants.WIDTH, Constants.HEIGHT);
 
         particles = new ArrayList<>();
 
@@ -246,6 +255,9 @@ public class PlayScreen extends Screen {
         float upper = Constants.HEIGHT - effectiveHeight / 2f;
         cam.position.y = MathUtils.clamp(player.y, lower, upper);
         cam.update();
+        bgCam.position.y = cam.position.y;
+        bgCam.zoom = cam.zoom;
+        bgCam.update();
 
         // update backgrounds
         for (Background bg : bgs) bg.update(dt);
@@ -302,12 +314,11 @@ public class PlayScreen extends Screen {
         sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
 
         sb.setColor(1, 1, 1, 1);
-        sb.setProjectionMatrix(cam.combined);
+        sb.setProjectionMatrix(bgCam.combined);
         for (Background bg : bgs) bg.render(sb);
 
-        sb.setProjectionMatrix(cam.combined);
-
         sb.setColor(1, 1, 1, 1);
+        sb.setProjectionMatrix(cam.combined);
         for (Interactable e : interactables) e.render(sb);
 
         sb.setProjectionMatrix(uiCam.combined);
