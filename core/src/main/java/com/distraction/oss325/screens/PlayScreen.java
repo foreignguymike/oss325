@@ -224,7 +224,7 @@ public class PlayScreen extends Screen {
         cam.position.y = Constants.HEIGHT / (2f / cam.zoom) + player.y / 2 * (1 - cam.zoom);
         cam.update();
 
-        // update background
+        // update backgrounds
         for (Background bg : bgs) bg.update(dt);
 
         // add interactables
@@ -233,7 +233,7 @@ public class PlayScreen extends Screen {
             interactables.addAll(nextInteractables(nextItem));
         }
 
-        // update bombs and check collision
+        // update interactables and check collision
         for (int i = 0; i < interactables.size(); i++) {
             Interactable e = interactables.get(i);
             e.update(dt);
