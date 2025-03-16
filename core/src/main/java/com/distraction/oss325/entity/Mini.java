@@ -55,7 +55,7 @@ public class Mini extends Entity {
         }
 
         sb.setColor(Constants.WHITE);
-        sb.draw(pixel, x, y - 5, 1, h + 10);
+        sb.draw(pixel, x, y, 1, h);
         sb.draw(pixel, x - w * 5 + 10, y - 1, 1, h + 2);
         sb.draw(pixel, x + w * 5 - 11, y - 1, 1, h + 2);
         sb.draw(pixel, x - w * 5 + 10, y + h, w * 10 - 20, 1);

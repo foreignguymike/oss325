@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
@@ -37,6 +38,7 @@ public class PlayScreen extends Screen {
     private final TextureRegion pixel;
 
     private final Player player;
+    private final TextureRegion[] explosionSprites;
 
     private final FontEntity distanceFont;
     private final FontEntity speedFont;
@@ -60,6 +62,7 @@ public class PlayScreen extends Screen {
     public PlayScreen(Context context) {
         super(context);
         pixel = context.getPixel();
+        explosionSprites = context.getImage("explosion").split(34, 36)[0];
 
         player = new Player(context);
         interactables = new ArrayList<>();
@@ -243,8 +246,8 @@ public class PlayScreen extends Screen {
         // add interactables
         int px = Utils.floorTo((int) player.x, INTERVAL);
         int nextItem;
-        if (interactables.isEmpty()) nextItem = INTERVAL * 5;
-        else nextItem = px + INTERVAL * 5;
+        if (interactables.isEmpty()) nextItem = INTERVAL * 6;
+        else nextItem = px + INTERVAL * 6;
         if (interactables.isEmpty() || interactables.getLast().x < nextItem) {
             interactables.addAll(nextInteractables(nextItem));
         }
@@ -305,14 +308,23 @@ public class PlayScreen extends Screen {
         sb.setColor(1, 1, 1, 1);
         for (Interactable e : interactables) e.render(sb);
 
+        sb.setProjectionMatrix(uiCam.combined);
+        mini.render(sb);
+
+        sb.setProjectionMatrix(cam.combined);
         sb.setColor(1, 1, 1, 1);
         player.render(sb);
+        if (player.dx > 1500) particles.add(
+            new Particle(
+                explosionSprites,
+                2 / 60f,
+                MathUtils.random(-10, 10) + player.x,
+                MathUtils.random(-10, 10) + player.y
+            )
+        );
 
         sb.setColor(1, 1, 1, 1);
         for (Particle p : particles) p.render(sb);
-
-        sb.setProjectionMatrix(uiCam.combined);
-        mini.render(sb);
 
         sb.setColor(1, 1, 1, 1);
         sb.setProjectionMatrix(cam.combined);

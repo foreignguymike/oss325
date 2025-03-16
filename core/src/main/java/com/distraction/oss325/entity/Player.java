@@ -3,6 +3,7 @@ package com.distraction.oss325.entity;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.distraction.oss325.Animation;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
 
@@ -10,7 +11,9 @@ public class Player extends Entity {
 
     public static final float GRAVITY = 500;
 
-    private final TextureRegion sprite;
+    private final TextureRegion poko;
+    private final Animation pokoShock;
+    private final Animation dbz;
 
     public boolean launched;
     public boolean stopped;
@@ -19,11 +22,15 @@ public class Player extends Entity {
     private float floor;
 
     private float rad;
+    private float drad;
 
     public Player(Context context) {
-        sprite = context.getImage("poko");
-        w = sprite.getRegionWidth();
-        h = sprite.getRegionHeight();
+        poko = context.getImage("poko");
+        w = poko.getRegionWidth();
+        h = poko.getRegionHeight();
+
+        pokoShock = new Animation(context.getImage("pokoshock").split(36, 25)[0], 2/60f);
+        dbz = new Animation(context.getImage("dbz").split(92, 47)[0], 2/60f);
     }
 
     public void setBounds(float ceil, float floor) {
@@ -81,7 +88,7 @@ public class Player extends Entity {
             }
             if (dy > 0 && y + h / 2f >= ceil) {
                 // slow down and stop dy
-                dx *= 0.8f;
+                dx *= 0.9f;
                 dy = 0;
             }
 
@@ -111,10 +118,17 @@ public class Player extends Entity {
                 y = floor + h / 2f;
             }
         }
+        pokoShock.update(dt);
+        dbz.update(dt);
+        drad = MathUtils.atan2(dy, dx);
     }
 
     @Override
     public void render(SpriteBatch sb) {
-        Utils.drawRotated(sb, sprite, x, y, rad);
+        if (!launched) Utils.drawRotated(sb, poko, x, y, rad);
+        else Utils.drawRotated(sb, pokoShock.getImage(), x, y, rad);
+
+        sb.setColor(1, 1, 1, 0.5f);
+        if (dx > 1500) Utils.drawRotated(sb, dbz.getImage(), x, y, drad);
     }
 }
