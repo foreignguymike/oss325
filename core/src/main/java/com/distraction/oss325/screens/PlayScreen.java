@@ -61,7 +61,7 @@ public class PlayScreen extends Screen {
 
     private final List<Particle> particles;
 
-    private TextureRegion booster;
+    private final TextureRegion booster;
     private int boosterCount = 3;
 
     public PlayScreen(Context context) {
@@ -336,13 +336,13 @@ public class PlayScreen extends Screen {
         player.render(sb);
         if (state == State.GO) {
             if (player.dx > 3000) {
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 2; i++) {
                     particles.add(
                         new Particle(
                             blueExplosion,
                             2.5f / 60f,
-                            MathUtils.random(-30, 30) + player.x,
-                            MathUtils.random(-30, 30) + player.y
+                            MathUtils.random(-60, 0) + player.x,
+                            MathUtils.random(-20, 20) + player.y
                         )
                     );
                 }
