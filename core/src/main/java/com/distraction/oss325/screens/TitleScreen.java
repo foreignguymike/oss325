@@ -15,6 +15,9 @@ public class TitleScreen extends Screen {
     private final FontEntity playerFont;
     private final FontEntity versionFont;
 
+    private final FontEntity errorFont;
+    private float errorFontTime;
+
     public TitleScreen(Context context) {
         super(context);
 
@@ -27,6 +30,16 @@ public class TitleScreen extends Screen {
 
         playerFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716, 2f), "Player: " + context.data.name, 10, Constants.HEIGHT - 20);
         versionFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716), Constants.VERSION, Constants.WIDTH - 5, 5, FontEntity.Alignment.RIGHT);
+
+        errorFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716), "", Constants.WIDTH / 2f, 5, FontEntity.Alignment.CENTER);
+        if (!context.leaderboardsInitialized && !context.leaderboardsRequesting) {
+            errorFont.setText("Fetching leaderboards...");
+            errorFontTime = 30f;
+            context.fetchLeaderboard((success) -> {
+                errorFont.setText(success ? "Leaderboards fetched!" : "Error fetching leaderboards...");
+                errorFontTime = 3f;
+            });
+        }
     }
 
     @Override
@@ -55,6 +68,7 @@ public class TitleScreen extends Screen {
     public void update(float dt) {
         in.update(dt);
         out.update(dt);
+        errorFontTime -= dt;
     }
 
     @Override
@@ -72,6 +86,7 @@ public class TitleScreen extends Screen {
 
         playerFont.render(sb);
         versionFont.render(sb);
+        if (errorFontTime > 0) errorFont.render(sb);
 
         in.render(sb);
         out.render(sb);

@@ -2,6 +2,7 @@ package com.distraction.oss325;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.distraction.oss325.gj.GameJoltClient;
 
 public class Main extends ApplicationAdapter {
 
@@ -14,6 +15,11 @@ public class Main extends ApplicationAdapter {
     @Override
     public void create() {
         context = new Context();
+
+        GameJoltClient client = new GameJoltClient();
+        client.setGjScoreTableMapper(_ -> Constants.LEADERBOARD_ID);
+        client.initialize(Constants.APP_ID, Constants.API_KEY);
+        context.client = client;
     }
 
     @Override
