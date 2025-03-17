@@ -30,6 +30,7 @@ public class SlowSign extends Interactable {
                 player.dx *= 0.7f;
             }
             player.dy = Math.abs(player.dy);
+            context.audio.playSound("metal", 0.5f);
         }
     }
 

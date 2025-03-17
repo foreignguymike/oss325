@@ -18,7 +18,16 @@ public class AudioHandler {
         music = new HashMap<>();
 
         sounds = new HashMap<>();
-        addSound("select", "sfx/select.ogg");
+        addSound("enter", "sfx/FreeSFX/Retro Event UI 01.wav");
+        addSound("click", "sfx/FreeSFX/Retro Event Acute 11.wav");
+        addSound("bounce", "sfx/FreeSFX/Retro FootStep 03.wav");
+        addSound("launch", "sfx/FreeSFX/Retro Electronic Burst StereoUP 04.wav");
+        addSound("bomb", "sfx/FreeSFX/Retro Explosion Swooshes 04.wav");
+        addSound("metal", "sfx/metal-pole-hit-83057.wav");
+        addSound("stop", "sfx/FreeSFX/Retro Event StereoUP 02.wav");
+        addSound("addboost", "sfx/FreeSFX/Retro Impact Metal 05.wav");
+        addSound("submit", "sfx/FreeSFX/Retro Event UI 13.wav");
+        addSound("pluck", "sfx/click.ogg");
     }
 
     private void addMusic(String key, String fileName) {

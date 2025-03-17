@@ -11,6 +11,8 @@ public class Player extends Entity {
 
     public static final float GRAVITY = 500;
 
+    private final Context context;
+
     private final TextureRegion poko;
     private final Animation pokoShock;
     private final Animation dbz;
@@ -25,7 +27,10 @@ public class Player extends Entity {
     private float rad;
     private float drad;
 
+    private float bounceTime;
+
     public Player(Context context) {
+        this.context = context;
         poko = context.getImage("poko");
         w = poko.getRegionWidth();
         h = poko.getRegionHeight();
@@ -77,6 +82,7 @@ public class Player extends Entity {
 
     @Override
     public void update(float dt) {
+        bounceTime += dt;
         if (launched && !stopped) {
             // gravity
             dy -= GRAVITY * dt;
@@ -88,6 +94,7 @@ public class Player extends Entity {
             // hit ceil
             if (y + h / 2f > ceil) {
                 y = ceil - h / 2f;
+                context.audio.playSound("bounce");
             }
             if (dy > 0 && y + h / 2f >= ceil) {
                 // slow down and stop dy
@@ -98,6 +105,12 @@ public class Player extends Entity {
             // hit floor
             if (y - h / 2f < floor) {
                 y = floor + h / 2f;
+                if (bounceTime > 0.1f) {
+                    float vol = Math.abs(dy) / 100;
+                    if (vol > 1f) vol = 1f;
+                    context.audio.playSound("bounce", vol);
+                    bounceTime = 0;
+                }
             }
             if (dy < 0 && y - h / 2f <= floor) {
                 // slow down and bounce

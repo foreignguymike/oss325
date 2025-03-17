@@ -189,7 +189,7 @@ public class NameScreen extends Screen {
             context.data.name = context.data.name.trim();
             out.start();
             Gdx.input.setInputProcessor(null);
-            context.audio.playSound("select");
+            context.audio.playSound("enter");
         }
     }
 

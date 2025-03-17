@@ -89,6 +89,7 @@ public class ScoreScreen extends Screen {
             if (backButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
                 out.start();
+                context.audio.playSound("click");
             }
         }
     }

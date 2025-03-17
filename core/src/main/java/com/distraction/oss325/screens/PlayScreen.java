@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.distraction.oss325.Constants;
@@ -39,6 +38,8 @@ public class PlayScreen extends Screen {
 
     private State state = State.RAD;
 
+    private final TextureRegion skyBg;
+
     private final Player player;
     private final TextureRegion[] explosion;
     private final TextureRegion[] blueExplosion;
@@ -67,6 +68,7 @@ public class PlayScreen extends Screen {
     private int boosterCount = 3;
 
     private float doneAlpha;
+    private final FontEntity distanceDoneFont;
     private final FontEntity doneFont;
     private final FontEntity submittedFont;
     private final Button submitButton;
@@ -76,6 +78,7 @@ public class PlayScreen extends Screen {
 
     public PlayScreen(Context context) {
         super(context);
+        skyBg = context.getImage("skybg");
         explosion = context.getImage("explosion").split(34, 36)[0];
         blueExplosion = context.getImage("blueexplosion").split(15, 15)[0];
 
@@ -84,8 +87,8 @@ public class PlayScreen extends Screen {
         mini = new Mini(context, cam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 40);
 
         bgs = new ArrayList<>();
-        bgs.add(new Background(context.getImage("bg2"), cam, 20));
-        bgs.add(new Background(context.getImage("bg1"), cam, 15));
+        bgs.add(new Background(context.getImage("bg2"), cam, 100));
+        bgs.add(new Background(context.getImage("bg1"), cam, 80));
         bgs.add(new Background(context.getImage("floor"), cam));
         bgs.get(0).y = 30;
         bgs.get(1).y = 0;
@@ -101,9 +104,8 @@ public class PlayScreen extends Screen {
         in.start();
         out = new Transition(context, Transition.Type.CHECKERED_OUT, 0.5f, () -> context.sm.replace(new PlayScreen(context)));
 
-        BitmapFont font = context.getFont(Context.FONT_NAME_M5X716, 4f);
         distanceFont = new FontEntity(
-            font,
+            context.getFont(Context.FONT_NAME_VCR20, 2f),
             getDistanceString(),
             10,
             Constants.HEIGHT - 26,
@@ -111,9 +113,8 @@ public class PlayScreen extends Screen {
         );
         distanceFont.setColor(Constants.BLACK);
 
-        font = context.getFont(Context.FONT_NAME_M5X716, 2f);
         speedFont = new FontEntity(
-            font,
+            context.getFont(Context.FONT_NAME_VCR20, 1f),
             getSpeedString(),
             10,
             distanceFont.y - 26,
@@ -126,6 +127,7 @@ public class PlayScreen extends Screen {
         backButton = new Button(context.getImage("back"), Constants.WIDTH - 24, Constants.HEIGHT - 24);
         restartButton = new Button(context.getImage("restart"), Constants.WIDTH - 60, Constants.HEIGHT - 24);
 
+        distanceDoneFont = new FontEntity(context.getFont(Context.FONT_NAME_VCR20, 2f), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f + 40, FontEntity.Alignment.CENTER);
         doneFont = new FontEntity(context.getFont(Context.FONT_NAME_VCR20), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f, FontEntity.Alignment.CENTER);
         submitButton = new Button(context.getImage("submit"), Constants.WIDTH / 2f, Constants.HEIGHT / 4f);
         submittedFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716, 2f), "Submitted!", submitButton.x, submitButton.y - 4, FontEntity.Alignment.CENTER);
@@ -191,7 +193,12 @@ public class PlayScreen extends Screen {
             } else {
                 temp.add(new Bomb(context));
             }
-            if (index / 13 > 30) {
+            if (index / 13 > 60) {
+                if (index % 7 == 0) {
+                    temp.clear();
+                    temp.add(new Stop(context));
+                }
+            } else if (index / 13 > 30) {
                 if (index % 10 == 0) {
                     temp.clear();
                     temp.add(new Stop(context));
@@ -224,6 +231,7 @@ public class PlayScreen extends Screen {
     }
 
     private void submit() {
+        context.audio.playSound("click");
         if (context.data.name.isEmpty() || !context.leaderboardsInitialized) return;
         if (context.data.submitted) return;
         if (loading) return;
@@ -238,6 +246,7 @@ public class PlayScreen extends Screen {
                 if (res.contains("true")) {
                     context.data.submitted = true;
                     context.fetchLeaderboard((_) -> {});
+                    context.audio.playSound("submit");
                 } else {
                     failed(null);
                 }
@@ -270,6 +279,7 @@ public class PlayScreen extends Screen {
             } else if (state == State.RAD) {
                 rad = launchAngle.rad;
                 state = State.POWER;
+                context.audio.playSound("pluck");
             } else if (state == State.POWER) {
                 float power = launchPower.getPower();
                 if (player.launched) {
@@ -277,6 +287,7 @@ public class PlayScreen extends Screen {
                 } else {
                     player.launch(rad, power);
                 }
+                context.audio.playSound("launch", 0.5f);
                 state = State.GO;
                 launchAngle.reset();
                 launchPower.reset();
@@ -288,21 +299,26 @@ public class PlayScreen extends Screen {
             if (state == State.DONE) {
                 if (submitButton.contains(m.x, m.y, 2, 2)) {
                     submit();
+                    context.audio.playSound("click");
                 }
             }
             if (restartButton.contains(m.x, m.y, 2, 2)) {
+                context.data.reset();
                 ignoreInput = true;
                 out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
                 out.start();
+                context.audio.playSound("click");
             }
             if (backButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
                 out = new Transition(context, Transition.Type.FLASH_OUT, 0.5f, () -> context.sm.replace(new TitleScreen(context)));
                 out.start();
+                context.audio.playSound("click");
             }
             if (state == State.DONE && scoresButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
                 context.sm.push(new ScoreScreen(context));
+                context.audio.playSound("click");
             }
         }
     }
@@ -318,13 +334,15 @@ public class PlayScreen extends Screen {
         // update player
         int boosterInterval = 1000;
         int currentBoosterInterval = getDistance() / boosterInterval;
-        if (state == State.GO) {
+        if (state == State.GO || state == State.DONE) {
             player.update(dt);
         }
         int newBoosterInterval = getDistance() / boosterInterval;
         if (currentBoosterInterval != newBoosterInterval) {
-            boosterCount++;
-            if (boosterCount > 3) boosterCount = 3;
+            if (boosterCount < 3) {
+                boosterCount++;
+                context.audio.playSound("addboost", 0.3f);
+            }
         }
 
         // update camera
@@ -385,6 +403,7 @@ public class PlayScreen extends Screen {
 
         if (player.stopped && state != State.DONE) {
             state = State.DONE;
+            distanceDoneFont.setText(getDistanceString());
             if (context.isHighscore(context.data.name, getDistance())) {
                 doneFont.setText("HIGH SCORE! " + getDistanceString());
                 context.data.score = getDistance();
@@ -404,8 +423,8 @@ public class PlayScreen extends Screen {
         sb.begin();
 
         sb.setProjectionMatrix(uiCam.combined);
-        sb.setColor(Constants.BLUE);
-        sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
+        sb.setColor(1, 1, 1, 1);
+        sb.draw(skyBg, 0, 0, Constants.WIDTH, Constants.HEIGHT);
 
         sb.setColor(1, 1, 1, 1);
         sb.setProjectionMatrix(bgCam.combined);
@@ -468,6 +487,7 @@ public class PlayScreen extends Screen {
             sb.setColor(0, 0, 0, doneAlpha);
             sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
 
+            distanceDoneFont.render(sb);
             doneFont.render(sb);
 
             if (context.isHighscore(context.data.name, getDistance())) {

@@ -40,6 +40,7 @@ public class Bomb extends Interactable {
                 )
             );
         }
+        context.audio.playSound("bomb", 0.5f);
     }
 
     @Override

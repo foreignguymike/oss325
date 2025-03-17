@@ -57,15 +57,18 @@ public class TitleScreen extends Screen {
                 ignoreInput = true;
                 out = new Transition(context, Transition.Type.FLASH_OUT, 0.5f, () -> context.sm.replace(new NameScreen(context)));
                 out.start();
+                context.audio.playSound("click");
             }
             if (playButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
                 out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
                 out.start();
+                context.audio.playSound("click");
             }
             if (scoresButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
                 context.sm.push(new ScoreScreen(context));
+                context.audio.playSound("click");
             }
         }
     }
@@ -88,6 +91,7 @@ public class TitleScreen extends Screen {
         sb.setColor(Constants.WHITE);
         sb.draw(pixel, 0, 130, Constants.WIDTH, 100);
 
+        sb.setColor(1, 1, 1, 1);
         Utils.drawCentered(sb, title, Constants.WIDTH / 2f, Constants.HEIGHT / 2f);
 
         playerFont.render(sb);

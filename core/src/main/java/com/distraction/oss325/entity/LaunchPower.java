@@ -41,6 +41,6 @@ public class LaunchPower extends Entity {
     @Override
     public void render(SpriteBatch sb) {
         Utils.drawCentered(sb, bar, x, y);
-        Utils.drawCentered(sb, downArrow, x - w / 2 + 4.5f + 50 * power, y + 5);
+        Utils.drawCentered(sb, downArrow, x - w / 2 + 50 * power, y + 5);
     }
 }

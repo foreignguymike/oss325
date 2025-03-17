@@ -11,6 +11,8 @@ public class Stop extends Interactable {
 
     private final TextureRegion sprite;
 
+    private boolean hit;
+
     public Stop(Context context) {
         sprite = context.getImage("stop");
         w = sprite.getRegionWidth() / 2f;
@@ -19,7 +21,11 @@ public class Stop extends Interactable {
 
     @Override
     public void interact(Context context, Player player, List<Particle> particles) {
-        player.dx = 0;
+        if (!hit) {
+            hit = true;
+            player.dx = 0;
+            context.audio.playSound("stop", 0.5f);
+        }
     }
 
     @Override
