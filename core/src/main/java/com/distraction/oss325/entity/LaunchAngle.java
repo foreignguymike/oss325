@@ -43,6 +43,6 @@ public class LaunchAngle extends Entity {
     @Override
     public void render(SpriteBatch sb) {
         sb.draw(bg, x, y);
-        sb.draw(arrow, x, y + 8f, 3f, 5f, arrow.getRegionWidth(), arrow.getRegionHeight(), 1f, 1f, MathUtils.radDeg * rad);
+        sb.draw(arrow, x, y + 9f, 3f, 5f, arrow.getRegionWidth(), arrow.getRegionHeight(), 1f, 1f, MathUtils.radDeg * rad);
     }
 }

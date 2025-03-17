@@ -2,13 +2,14 @@ package com.distraction.oss325.entity;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-abstract class Entity {
+public abstract class Entity {
 
     // position, size, speed
     public float x, y;
     public float w, h;
     public float dx, dy;
 
+    public float a = 1;
     public boolean visible = true;
     public boolean remove = false;
 

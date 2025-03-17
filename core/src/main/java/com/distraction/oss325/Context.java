@@ -5,7 +5,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.distraction.oss325.screens.PlayScreen;
+import com.distraction.oss325.audio.AudioHandler;
+import com.distraction.oss325.screens.NameScreen;
 import com.distraction.oss325.screens.ScreenManager;
 
 public class Context {
@@ -16,9 +17,12 @@ public class Context {
     private static final String ATLAS = "oss325.atlas";
 
     public AssetManager assets;
+    public AudioHandler audio;
 
     public ScreenManager sm;
     public SpriteBatch sb;
+
+    public PlayerData data = new PlayerData();
 
     public Context() {
         assets = new AssetManager();
@@ -29,7 +33,9 @@ public class Context {
 
         sb = new SpriteBatch();
 
-        sm = new ScreenManager(new PlayScreen(this));
+        audio = new AudioHandler();
+
+        sm = new ScreenManager(new NameScreen(this));
     }
 
     public TextureRegion getImage(String key) {

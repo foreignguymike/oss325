@@ -59,9 +59,9 @@ public class FontEntity extends Entity {
 
     @Override
     public boolean contains(float x, float y, float px, float py) {
-        if (alignment == Alignment.CENTER) return contains(x, y, px, py);
-        else if (alignment == Alignment.LEFT) return contains(x - w / 2, y, px, py);
-        else return contains(x + w / 2 + 1, y, px, py);
+        if (alignment == Alignment.CENTER) return super.contains(x, y, px, py);
+        else if (alignment == Alignment.LEFT) return super.contains(x - w / 2, y, px, py);
+        else return super.contains(x + w / 2 + 1, y, px, py);
     }
 
     @Override

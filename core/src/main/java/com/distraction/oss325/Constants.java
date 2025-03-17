@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 @SuppressWarnings("all")
 public class Constants {
 
-    public static final String TITLE = "something";
+    public static final String TITLE = "Poko Blast";
     public static final int WIDTH = 640;
     public static final int HEIGHT = 360;
     public static final int SCALE = 2;
@@ -13,6 +13,8 @@ public class Constants {
     public static final int SHEIGHT = HEIGHT * SCALE;
 
     public static final boolean FULLSCREEN = false;
+
+    public static final String VERSION = "v0.1";
 
     // Island Joy 16
     // https://lospec.com/palette-list/island-joy-16
@@ -36,6 +38,7 @@ public class Constants {
     };
     public static final Color WHITE = COLORS[0];
     public static final Color BLUE = COLORS[2];
+    public static final Color GRAY = COLORS[3];
     public static final Color BLACK = COLORS[4];
     public static final Color DARK_GREEN = COLORS[5];
     public static final Color GREEN = COLORS[6];

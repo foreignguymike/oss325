@@ -37,8 +37,6 @@ public class PlayScreen extends Screen {
 
     private State state = State.RAD;
 
-    private final TextureRegion pixel;
-
     private final Player player;
     private final TextureRegion[] explosion;
     private final TextureRegion[] blueExplosion;
@@ -66,7 +64,6 @@ public class PlayScreen extends Screen {
 
     public PlayScreen(Context context) {
         super(context);
-        pixel = context.getPixel();
         explosion = context.getImage("explosion").split(34, 36)[0];
         blueExplosion = context.getImage("blueexplosion").split(15, 15)[0];
 
