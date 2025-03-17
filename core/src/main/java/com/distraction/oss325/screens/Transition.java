@@ -1,9 +1,11 @@
 package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.SimpleCallback;
@@ -14,12 +16,17 @@ public class Transition {
         CHECKERED_IN,
         CHECKERED_OUT,
         FLASH_IN,
-        FLASH_OUT
+        FLASH_OUT,
+        PAN
     }
 
     private final Type type;
     private final float duration;
     private SimpleCallback callback;
+
+    private final OrthographicCamera cam;
+    private final Vector2 camStart;
+    private final Vector2 camEnd;
 
     private final TextureRegion pixel;
 
@@ -28,7 +35,14 @@ public class Transition {
     private boolean done;
 
     public Transition(Context context, Type type, float duration, SimpleCallback callback) {
+        this(context, type, null, null, null, duration, callback);
+    }
+
+    public Transition(Context context, Type type, OrthographicCamera cam, Vector2 camStart, Vector2 camEnd, float duration, SimpleCallback callback) {
         this.type = type;
+        this.cam = cam;
+        this.camStart = camStart;
+        this.camEnd = camEnd;
         this.duration = duration;
         this.callback = callback;
 
@@ -41,6 +55,10 @@ public class Transition {
 
     public void start() {
         start = true;
+    }
+
+    public boolean started() {
+        return start;
     }
 
     public boolean isFinished() {
@@ -56,11 +74,19 @@ public class Transition {
     public void update(float dt) {
         if (!start) return;
         time += dt;
+        if (type == Type.PAN) {
+            cam.position.x = MathUtils.map(0, duration, camStart.x, camEnd.x, time);
+            cam.update();
+        }
         if (time > duration) {
             if (!done) {
                 done = true;
                 callback.callback();
                 reset();
+                if (type == Type.PAN) {
+                    cam.position.x = camEnd.x;
+                    cam.update();
+                }
             }
         }
     }

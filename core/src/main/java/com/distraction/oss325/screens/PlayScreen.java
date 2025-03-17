@@ -174,12 +174,21 @@ public class PlayScreen extends Screen {
         while (cx <= x) {
             List<Interactable> temp = new ArrayList<>();
             int index = cx / INTERVAL;
-            if (index % 13 == 0) {
-                temp.add(new Stop(context));
-            } else if (index % 3 == 0) {
+            if (index % 3 == 0) {
                 temp.add(new SlowSign(context));
             } else {
                 temp.add(new Bomb(context));
+            }
+            if (index / 13 > 30) {
+                if (index % 10 == 0) {
+                    temp.clear();
+                    temp.add(new Stop(context));
+                }
+            } else {
+                if (index % 13 == 0) {
+                    temp.clear();
+                    temp.add(new Stop(context));
+                }
             }
             for (Interactable i : temp) {
                 i.x = cx;

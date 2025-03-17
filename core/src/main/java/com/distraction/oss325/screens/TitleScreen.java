@@ -41,10 +41,13 @@ public class TitleScreen extends Screen {
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             ignoreInput = true;
             out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
             out.start();
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+            ignoreInput = true;
+            context.sm.push(new ScoreScreen(context));
         }
     }
 
