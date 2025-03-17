@@ -1,12 +1,12 @@
 package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
+import com.distraction.oss325.entity.Button;
 import com.distraction.oss325.entity.FontEntity;
 
 import de.golfgl.gdxgamesvcs.leaderboard.ILeaderBoardEntry;
@@ -19,6 +19,8 @@ public class ScoreScreen extends Screen {
     private final FontEntity topScoresFont;
     private final FontEntity[][] scoreFonts;
 
+    private final Button backButton;
+
     public ScoreScreen(Context context) {
         super(context);
         bg = context.getImage("scoresbg");
@@ -29,7 +31,7 @@ public class ScoreScreen extends Screen {
         in = new Transition(
             context,
             Transition.Type.PAN, cam,
-            new Vector2(bg.getRegionWidth() + Constants.WIDTH / 2f, 0),
+            new Vector2(1.5f * Constants.WIDTH, 0),
             new Vector2(Constants.WIDTH / 2f, 0),
             0.2f,
             () -> ignoreInput = false
@@ -39,14 +41,14 @@ public class ScoreScreen extends Screen {
             context,
             Transition.Type.PAN, cam,
             new Vector2(Constants.WIDTH / 2f, 0),
-            new Vector2(bg.getRegionWidth() + Constants.WIDTH / 2f, 0),
+            new Vector2(1.5f * Constants.WIDTH, 0),
             0.2f,
             () -> {
                 context.sm.pop();
                 context.sm.peek().ignoreInput = false;
             }
         );
-        cam.position.x = bg.getRegionWidth() + Constants.WIDTH / 2f;
+        cam.position.x = 1.5f * Constants.WIDTH;
         cam.update();
 
 
@@ -61,6 +63,8 @@ public class ScoreScreen extends Screen {
         }
 
         updateLeaderboards();
+
+        backButton = new Button(context.getImage("back"), Constants.WIDTH - 24, Constants.HEIGHT - 24);
     }
 
     private void updateLeaderboards() {
@@ -80,9 +84,12 @@ public class ScoreScreen extends Screen {
     public void input() {
         if (ignoreInput) return;
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            ignoreInput = true;
-            out.start();
+        if (Gdx.input.justTouched()) {
+            unproject();
+            if (backButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                out.start();
+            }
         }
     }
 
@@ -118,6 +125,8 @@ public class ScoreScreen extends Screen {
             scoreFont[1].render(sb);
             scoreFont[2].render(sb);
         }
+
+        backButton.render(sb);
 
         sb.end();
     }

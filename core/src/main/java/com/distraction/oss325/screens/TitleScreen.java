@@ -1,11 +1,11 @@
 package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
+import com.distraction.oss325.entity.Button;
 import com.distraction.oss325.entity.FontEntity;
 
 public class TitleScreen extends Screen {
@@ -17,6 +17,9 @@ public class TitleScreen extends Screen {
 
     private final FontEntity errorFont;
     private float errorFontTime;
+
+    private final Button playButton;
+    private final Button scoresButton;
 
     public TitleScreen(Context context) {
         super(context);
@@ -40,27 +43,30 @@ public class TitleScreen extends Screen {
                 errorFontTime = 3f;
             });
         }
+
+        playButton = new Button(context.getImage("play"), Constants.WIDTH / 2f - 80, 60);
+        scoresButton = new Button(context.getImage("scores"), Constants.WIDTH / 2f + 80, 60);
     }
 
     @Override
     public void input() {
         if (ignoreInput) return;
-        if (Gdx.input.isTouched()) {
+        if (Gdx.input.justTouched()) {
             unproject();
             if (playerFont.contains(m.x, m.y, 5, 3)) {
                 ignoreInput = true;
                 out = new Transition(context, Transition.Type.FLASH_OUT, 0.5f, () -> context.sm.replace(new NameScreen(context)));
                 out.start();
             }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            ignoreInput = true;
-            out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
-            out.start();
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-            ignoreInput = true;
-            context.sm.push(new ScoreScreen(context));
+            if (playButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
+                out.start();
+            }
+            if (scoresButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                context.sm.push(new ScoreScreen(context));
+            }
         }
     }
 
@@ -87,6 +93,9 @@ public class TitleScreen extends Screen {
         playerFont.render(sb);
         versionFont.render(sb);
         if (errorFontTime > 0) errorFont.render(sb);
+
+        playButton.render(sb);
+        scoresButton.render(sb);
 
         in.render(sb);
         out.render(sb);

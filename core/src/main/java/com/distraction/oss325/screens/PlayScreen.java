@@ -2,6 +2,7 @@ package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Net;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,6 +12,7 @@ import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
 import com.distraction.oss325.entity.Background;
 import com.distraction.oss325.entity.Bomb;
+import com.distraction.oss325.entity.Button;
 import com.distraction.oss325.entity.FontEntity;
 import com.distraction.oss325.entity.Interactable;
 import com.distraction.oss325.entity.LaunchAngle;
@@ -27,12 +29,12 @@ import java.util.List;
 public class PlayScreen extends Screen {
 
     private final int INTERVAL = 500;
-    private final int BOOSTER_INTERVAL = 1000;
 
     private enum State {
         RAD,
         POWER,
-        GO
+        GO,
+        DONE
     }
 
     private State state = State.RAD;
@@ -43,7 +45,9 @@ public class PlayScreen extends Screen {
 
     private final FontEntity distanceFont;
     private final FontEntity speedFont;
-    private final FontEntity boosterFont;
+
+    private final Button restartButton;
+    private final Button backButton;
 
     private final float floor = 20;
 
@@ -61,6 +65,14 @@ public class PlayScreen extends Screen {
 
     private final TextureRegion booster;
     private int boosterCount = 3;
+
+    private float doneAlpha;
+    private final FontEntity doneFont;
+    private final FontEntity submittedFont;
+    private final Button submitButton;
+    private final Button scoresButton;
+    private boolean loading;
+    private float time;
 
     public PlayScreen(Context context) {
         super(context);
@@ -110,14 +122,14 @@ public class PlayScreen extends Screen {
         speedFont.setColor(Constants.BLACK);
 
         booster = context.getImage("boost");
-        boosterFont = new FontEntity(
-            font,
-            "[SPACE]",
-            Constants.WIDTH - 16,
-            Constants.HEIGHT - 50,
-            FontEntity.Alignment.RIGHT
-        );
-        boosterFont.setColor(Constants.BLACK);
+
+        backButton = new Button(context.getImage("back"), Constants.WIDTH - 24, Constants.HEIGHT - 24);
+        restartButton = new Button(context.getImage("restart"), Constants.WIDTH - 60, Constants.HEIGHT - 24);
+
+        doneFont = new FontEntity(context.getFont(Context.FONT_NAME_VCR20), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f, FontEntity.Alignment.CENTER);
+        submitButton = new Button(context.getImage("submit"), Constants.WIDTH / 2f, Constants.HEIGHT / 4f);
+        submittedFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716, 2f), "Submitted!", submitButton.x, submitButton.y - 4, FontEntity.Alignment.CENTER);
+        scoresButton = new Button(context.getImage("scores"), Constants.WIDTH / 2f, Constants.HEIGHT / 4f - 50);
 
     }
 
@@ -211,14 +223,43 @@ public class PlayScreen extends Screen {
         }
     }
 
+    private void submit() {
+        if (context.data.name.isEmpty() || !context.leaderboardsInitialized) return;
+        if (context.data.submitted) return;
+        if (loading) return;
+        loading = true;
+        context.audio.playSound("submit");
+        context.submitScore(context.data.name, context.data.score, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                String res = httpResponse.getResultAsString();
+                // throwing an exception with SubmitScoreResponse here for some reason
+                // just doing a sus true check instead
+                if (res.contains("true")) {
+                    context.data.submitted = true;
+                    context.fetchLeaderboard((_) -> {});
+                } else {
+                    failed(null);
+                }
+                loading = false;
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                ignoreInput = false;
+                loading = false;
+            }
+
+            @Override
+            public void cancelled() {
+                failed(null);
+            }
+        });
+    }
+
     @Override
     public void input() {
         if (ignoreInput) return;
-        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-            ignoreInput = true;
-            out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
-            out.start();
-        }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             if (state == State.GO && !player.stopped) {
@@ -241,20 +282,46 @@ public class PlayScreen extends Screen {
                 launchPower.reset();
             }
         }
+
+        if (Gdx.input.justTouched()) {
+            unproject();
+            if (state == State.DONE) {
+                if (submitButton.contains(m.x, m.y, 2, 2)) {
+                    submit();
+                }
+            }
+            if (restartButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                out.setCallback(() -> context.sm.replace(new PlayScreen(context)));
+                out.start();
+            }
+            if (backButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                out = new Transition(context, Transition.Type.FLASH_OUT, 0.5f, () -> context.sm.replace(new TitleScreen(context)));
+                out.start();
+            }
+            if (state == State.DONE && scoresButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                context.sm.push(new ScoreScreen(context));
+            }
+        }
     }
 
     @Override
     public void update(float dt) {
+        time += dt;
+
         // update transitions
         in.update(dt);
         out.update(dt);
 
         // update player
-        int currentBoosterInterval = getDistance() / BOOSTER_INTERVAL;
+        int boosterInterval = 1000;
+        int currentBoosterInterval = getDistance() / boosterInterval;
         if (state == State.GO) {
             player.update(dt);
         }
-        int newBoosterInterval = getDistance() / BOOSTER_INTERVAL;
+        int newBoosterInterval = getDistance() / boosterInterval;
         if (currentBoosterInterval != newBoosterInterval) {
             boosterCount++;
             if (boosterCount > 3) boosterCount = 3;
@@ -315,6 +382,20 @@ public class PlayScreen extends Screen {
         // update distance
         distanceFont.setText(getDistanceString());
         speedFont.setText(getSpeedString());
+
+        if (player.stopped && state != State.DONE) {
+            state = State.DONE;
+            if (context.isHighscore(context.data.name, getDistance())) {
+                doneFont.setText("HIGH SCORE! " + getDistanceString());
+                context.data.score = getDistance();
+            } else {
+                doneFont.setText("Try again!");
+            }
+        }
+        if (state == State.DONE) {
+            doneAlpha = MathUtils.clamp(doneAlpha + dt, 0, 0.8f);
+        }
+
     }
 
     @Override
@@ -377,9 +458,36 @@ public class PlayScreen extends Screen {
         sb.setProjectionMatrix(uiCam.combined);
         distanceFont.render(sb);
         speedFont.render(sb);
-        if (boosterCount > 0 && player.launched) boosterFont.render(sb);
         for (int i = 0; i < boosterCount; i++) {
-            sb.draw(booster, Constants.WIDTH - 36 - i * 25, Constants.HEIGHT - 36);
+            sb.draw(booster, 10 + i * 25, Constants.HEIGHT - 90);
+        }
+        restartButton.render(sb);
+        backButton.render(sb);
+
+        if (state == State.DONE) {
+            sb.setColor(0, 0, 0, doneAlpha);
+            sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
+
+            doneFont.render(sb);
+
+            if (context.isHighscore(context.data.name, getDistance())) {
+                if (!context.data.submitted) {
+                    submitButton.render(sb);
+                }
+            }
+            if (context.data.submitted) {
+                submittedFont.render(sb);
+            }
+            if (loading) {
+                for (int i = 0; i < 5; i++) {
+                    float x = submitButton.x + submitButton.w / 2f + 10 * MathUtils.cos(-6f * time + i * 0.1f) - 5;
+                    float y = submitButton.y + 10 * MathUtils.sin(-6f * time + i * 0.1f) - 5;
+                    sb.draw(pixel, x, y, 2, 2);
+                }
+            }
+            restartButton.render(sb);
+            backButton.render(sb);
+            scoresButton.render(sb);
         }
 
         sb.setColor(1, 1, 1, 1);

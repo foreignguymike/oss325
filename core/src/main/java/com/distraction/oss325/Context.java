@@ -23,13 +23,15 @@ public class Context {
 
     private static final String ATLAS = "oss325.atlas";
 
+    public static final int MAX_SCORES = 10;
+    private static final int MINIMUM_SCORE = 1;
+
     public AssetManager assets;
     public AudioHandler audio;
 
     public ScreenManager sm;
     public SpriteBatch sb;
 
-    public static final int MAX_SCORES = 10;
     public GameJoltClient client;
     public boolean leaderboardsRequesting;
     public boolean leaderboardsInitialized;
@@ -100,6 +102,7 @@ public class Context {
 
     public boolean isHighscore(String name, int score) {
         if (!leaderboardsInitialized) return false;
+        if (score < MINIMUM_SCORE) return false;
         ILeaderBoardEntry existingEntry = null;
         for (ILeaderBoardEntry entry : entries) {
             if (entry.getUserDisplayName().equals(name)) {
@@ -107,12 +110,11 @@ public class Context {
                 break;
             }
         }
-        boolean hasSpace = entries.size() < MAX_SCORES;
-        boolean top = score > Integer.parseInt(entries.getLast().getFormattedValue());
+        boolean top = entries.size() < MAX_SCORES || score > Integer.parseInt(entries.getLast().getFormattedValue());
         if (existingEntry != null) {
-            return score > Integer.parseInt(existingEntry.getFormattedValue()) && (hasSpace || top);
+            return score > Integer.parseInt(existingEntry.getFormattedValue()) && top;
         } else {
-            return hasSpace || top;
+            return top;
         }
     }
 
