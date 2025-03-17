@@ -2,7 +2,6 @@ package com.distraction.oss325.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;

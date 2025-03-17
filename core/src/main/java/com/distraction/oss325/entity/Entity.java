@@ -13,13 +13,6 @@ public abstract class Entity {
     public boolean visible = true;
     public boolean remove = false;
 
-    public boolean contains(float x, float y) {
-        return x > this.x - w / 2
-            && x < this.x + w / 2
-            && y > this.y - h / 2
-            && y < this.y + h / 2;
-    }
-
     /**
      * Contains with padding.
      */

@@ -99,8 +99,6 @@ public class NameScreen extends Screen {
         put(SPACE, " ");
     }};
 
-    private static final Color BG = Color.valueOf("262733");
-
     private boolean shift = false;
 
     private final TextureRegion pixel;

@@ -37,10 +37,6 @@ public class FontEntity extends Entity {
         this.y = y;
     }
 
-    public String getText() {
-        return currentText;
-    }
-
     public void setText(String text) {
         if (!Objects.equals(currentText, text)) {
             currentText = text;
