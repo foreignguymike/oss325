@@ -2,6 +2,7 @@ package com.distraction.oss325;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.distraction.oss325.gj.GameJoltClient;
 
 public class Main extends ApplicationAdapter {
@@ -20,6 +21,10 @@ public class Main extends ApplicationAdapter {
         client.setGjScoreTableMapper(id -> Constants.LEADERBOARD_ID);
         client.initialize(Constants.APP_ID, Constants.API_KEY);
         context.client = client;
+
+        Gdx.input.setCatchKey(Input.Keys.UP, true);
+        Gdx.input.setCatchKey(Input.Keys.DOWN, true);
+        Gdx.input.setCatchKey(Input.Keys.SPACE, true);
     }
 
     @Override
