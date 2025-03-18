@@ -295,6 +295,8 @@ public class PlayScreen extends Screen {
             }
         }
 
+        player.up = Gdx.input.isKeyPressed(Input.Keys.UP);
+
         if (Gdx.input.justTouched()) {
             unproject();
             if (state == State.DONE) {
@@ -484,6 +486,13 @@ public class PlayScreen extends Screen {
         for (int i = 0; i < boosterCount; i++) {
             sb.draw(booster, 10 + i * 25, Constants.HEIGHT - 90);
         }
+        sb.setColor(Constants.LIME);
+        sb.draw(pixel, 10, 230, 5, 30 * (player.glideTime / Player.MAX_GLIDE_TIME));
+        sb.setColor(Constants.BLACK);
+        sb.draw(pixel, 10, 230, 5, 1);
+        sb.draw(pixel, 10, 230, 1, 30);
+        sb.draw(pixel, 10, 260, 5, 1);
+        sb.draw(pixel, 15, 230, 1, 31);
         restartButton.render(sb);
         backButton.render(sb);
 

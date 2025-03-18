@@ -10,6 +10,7 @@ import com.distraction.oss325.Utils;
 public class Player extends Entity {
 
     public static final float GRAVITY = 500;
+    public static final float MAX_GLIDE_TIME = 3f;
 
     private final Context context;
 
@@ -29,6 +30,10 @@ public class Player extends Entity {
 
     private float bounceTime;
 
+    public boolean up;
+    public float glideTime = MAX_GLIDE_TIME;
+    private final TextureRegion wing;
+
     public Player(Context context) {
         this.context = context;
         poko = context.getImage("poko");
@@ -38,6 +43,8 @@ public class Player extends Entity {
         pokoShock = new Animation(context.getImage("pokoshock").split(36, 25)[0], 2/60f);
         dbz = new Animation(context.getImage("dbz").split(92, 47)[0], 2/60f);
         bluedbz = new Animation(context.getImage("bluedbz").split(92, 47)[0], 2/60f);
+
+        wing = context.getImage("wing");
     }
 
     public void setBounds(float ceil, float floor) {
@@ -80,12 +87,26 @@ public class Player extends Entity {
         rad = 0;
     }
 
+    private boolean isGliding() {
+        return up && glideTime > 0f;
+    }
+
     @Override
     public void update(float dt) {
+
         bounceTime += dt;
+
+        if (!up) {
+            glideTime += dt * 0.25f;
+            if (glideTime > MAX_GLIDE_TIME) glideTime = MAX_GLIDE_TIME;
+        } else {
+            glideTime -= dt;
+            if (glideTime < 0) glideTime = 0;
+        }
+
         if (launched && !stopped) {
             // gravity
-            dy -= GRAVITY * dt;
+            dy -= GRAVITY * dt * (isGliding() ? 0.33f : 1f);
 
             // move
             x += dx * dt;
@@ -142,8 +163,12 @@ public class Player extends Entity {
 
     @Override
     public void render(SpriteBatch sb) {
+        if (launched && isGliding()) Utils.drawCentered(sb, wing, x + 20, y + 10, true);
+
         if (!launched) Utils.drawRotated(sb, poko, x, y, rad);
         else Utils.drawRotated(sb, pokoShock.getImage(), x, y, rad);
+
+        if (launched && isGliding()) Utils.drawCentered(sb, wing, x - 20, y + 10);
 
         sb.setColor(1, 1, 1, 0.7f);
         if (dx > 3000) Utils.drawRotated(sb, bluedbz.getImage(), x, y, drad);

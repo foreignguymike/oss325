@@ -10,6 +10,14 @@ public class Utils {
         sb.draw(image, x - image.getRegionWidth() / 2f, y - image.getRegionHeight() / 2f);
     }
 
+    public static void drawCentered(SpriteBatch sb, TextureRegion image, float x, float y, boolean flipped) {
+        if (flipped) {
+            sb.draw(image, x + image.getRegionWidth() / 2f, y - image.getRegionHeight() / 2f, -image.getRegionWidth(), image.getRegionHeight());
+        } else {
+            sb.draw(image, x - image.getRegionWidth() / 2f, y - image.getRegionHeight() / 2f);
+        }
+    }
+
     public static void drawRotated(SpriteBatch sb,  TextureRegion image, float x, float y, float rad) {
         sb.draw(
             image,

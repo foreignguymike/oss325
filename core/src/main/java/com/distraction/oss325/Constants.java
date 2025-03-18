@@ -42,6 +42,7 @@ public class Constants {
     public static final Color BLACK = COLORS[4];
     public static final Color DARK_GREEN = COLORS[5];
     public static final Color GREEN = COLORS[6];
+    public static final Color LIME = COLORS[7];
     public static final Color YELLOW = COLORS[8];
     public static final Color PURPLE = COLORS[11];
     public static final Color PINK = COLORS[13];
