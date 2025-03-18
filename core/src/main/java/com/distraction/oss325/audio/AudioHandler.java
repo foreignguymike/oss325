@@ -48,7 +48,8 @@ public class AudioHandler {
     public void playMusic(String key, float volume, boolean looping) {
         Music newMusic = music.get(key);
         if (newMusic == null) {
-            throw new IllegalArgumentException("music does not exist: " + key);
+            System.out.println("unknown music: " + key);
+            return;
         }
         if (currentlyPlaying != null && newMusic != currentlyPlaying.getMusic()) {
             stopMusic();

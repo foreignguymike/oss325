@@ -17,7 +17,7 @@ public class Main extends ApplicationAdapter {
         context = new Context();
 
         GameJoltClient client = new GameJoltClient();
-        client.setGjScoreTableMapper(_ -> Constants.LEADERBOARD_ID);
+        client.setGjScoreTableMapper(id -> Constants.LEADERBOARD_ID);
         client.initialize(Constants.APP_ID, Constants.API_KEY);
         context.client = client;
     }

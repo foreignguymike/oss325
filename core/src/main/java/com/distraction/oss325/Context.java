@@ -110,7 +110,7 @@ public class Context {
                 break;
             }
         }
-        boolean top = entries.size() < MAX_SCORES || score > Integer.parseInt(entries.getLast().getFormattedValue());
+        boolean top = entries.size() < MAX_SCORES || score > Integer.parseInt(Utils.getLast(entries).getFormattedValue());
         if (existingEntry != null) {
             return score > Integer.parseInt(existingEntry.getFormattedValue()) && top;
         } else {

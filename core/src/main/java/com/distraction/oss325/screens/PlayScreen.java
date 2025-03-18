@@ -183,7 +183,7 @@ public class PlayScreen extends Screen {
     private List<Interactable> nextInteractables(int x) {
         int cx;
         if (interactables.isEmpty()) cx = INTERVAL;
-        else cx = (int) interactables.getLast().x + INTERVAL;
+        else cx = (int) Utils.getLast(interactables).x + INTERVAL;
 
         List<Interactable> list = new ArrayList<>();
         while (cx <= x) {
@@ -216,7 +216,7 @@ public class PlayScreen extends Screen {
             }
             list.addAll(temp);
             temp.clear();
-            cx = (int) list.getLast().x + INTERVAL;
+            cx = (int) Utils.getLast(list).x + INTERVAL;
         }
         return list;
     }
@@ -246,7 +246,7 @@ public class PlayScreen extends Screen {
                 // just doing a sus true check instead
                 if (res.contains("true")) {
                     context.data.submitted = true;
-                    context.fetchLeaderboard((_) -> {});
+                    context.fetchLeaderboard(success -> {});
                     context.audio.playSound("submit");
                 } else {
                     failed(null);
@@ -371,7 +371,7 @@ public class PlayScreen extends Screen {
         int nextItem;
         if (interactables.isEmpty()) nextItem = INTERVAL * 6;
         else nextItem = px + INTERVAL * 6;
-        if (interactables.isEmpty() || interactables.getLast().x < nextItem) {
+        if (interactables.isEmpty() || Utils.getLast(interactables).x < nextItem) {
             interactables.addAll(nextInteractables(nextItem));
         }
 

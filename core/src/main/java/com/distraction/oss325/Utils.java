@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 public class Utils {
 
     public static void drawCentered(SpriteBatch sb, TextureRegion image, float x, float y) {
@@ -39,6 +42,11 @@ public class Utils {
 
     public static int floorTo(int number, int n) {
         return ((number - 1) / n) * n;
+    }
+
+    public static <T> T getLast(List<T> list) {
+        if (list == null || list.isEmpty()) throw new NoSuchElementException("List is empty");
+        return list.get(list.size() - 1);
     }
 
 }
