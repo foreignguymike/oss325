@@ -37,6 +37,7 @@ public class Constants {
         Color.valueOf("9b9c82")
     };
     public static final Color WHITE = COLORS[0];
+    public static final Color SEA = COLORS[1];
     public static final Color BLUE = COLORS[2];
     public static final Color GRAY = COLORS[3];
     public static final Color BLACK = COLORS[4];

@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.distraction.oss325.Constants;
-import com.distraction.oss325.Utils;
 
 public class Background extends Entity {
 
@@ -13,14 +12,17 @@ public class Background extends Entity {
     private final float parallax;
     private final int count;
 
+    public float xOffset;
+
     public Background(TextureRegion image, Camera cam) {
-        this(image, cam, 1f);
+        this(image, cam, 1f, 0f);
     }
 
-    public Background(TextureRegion image, Camera cam, float parallax) {
+    public Background(TextureRegion image, Camera cam, float parallax, float y) {
         this.image = image;
         this.cam = cam;
         this.parallax = parallax;
+        this.y = y;
         w = image.getRegionWidth();
         h = image.getRegionHeight();
         count = (int) (Constants.WIDTH / w) + 3;
@@ -28,7 +30,7 @@ public class Background extends Entity {
 
     @Override
     public void update(float dt) {
-        x = (-cam.position.x / parallax) % w;
+        x = (-cam.position.x / parallax) % w + xOffset;
     }
 
     @Override

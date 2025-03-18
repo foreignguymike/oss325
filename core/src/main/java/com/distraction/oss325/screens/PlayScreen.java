@@ -84,14 +84,23 @@ public class PlayScreen extends Screen {
 
         player = new Player(context);
         interactables = new ArrayList<>();
-        mini = new Mini(context, cam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 40);
+        mini = new Mini(context, cam, uiCam, interactables, Constants.WIDTH / 2f, Constants.HEIGHT - 40);
 
         bgs = new ArrayList<>();
-        bgs.add(new Background(context.getImage("bg2"), cam, 100));
-        bgs.add(new Background(context.getImage("bg1"), cam, 80));
+        bgs.add(new Background(context.getImage("cloud3"), cam, 400, 230));
+        bgs.add(new Background(context.getImage("cloud2"), cam, 300, 200));
+        bgs.add(new Background(context.getImage("cloud1"), cam, 200, 100));
+        bgs.add(new Background(context.getImage("bg2"), cam, 100, 50));
+        bgs.add(new Background(context.getImage("bg1"), cam, 80, 30));
+        bgs.add(new Background(context.getImage("rails"), cam));
         bgs.add(new Background(context.getImage("floor"), cam));
-        bgs.get(0).y = 30;
-        bgs.get(1).y = 0;
+        bgs.get(0).w = bgs.get(1).w = bgs.get(2).w = Constants.WIDTH;
+        bgs.get(0).xOffset = 200;
+        bgs.get(1).xOffset = 500;
+        bgs.get(2).xOffset = 300;
+        bgs.get(4).y = 20;
+        bgs.get(5).y = 20;
+        bgs.get(6).y = 0;
 
         bgCam = new OrthographicCamera();
         bgCam.setToOrtho(false, Constants.WIDTH, Constants.HEIGHT);
@@ -194,7 +203,12 @@ public class PlayScreen extends Screen {
             } else {
                 temp.add(new Bomb(context));
             }
-            if (index / 13 > 60) {
+            if (index / 13 > 80) {
+                if (index % 5 == 0) {
+                    temp.clear();
+                    temp.add(new Stop(context));
+                }
+            } else if (index / 13 > 60) {
                 if (index % 7 == 0) {
                     temp.clear();
                     temp.add(new Stop(context));
@@ -338,17 +352,8 @@ public class PlayScreen extends Screen {
         out.update(dt);
 
         // update player
-        int boosterInterval = 1000;
-        int currentBoosterInterval = getDistance() / boosterInterval;
         if (state == State.GO || state == State.DONE) {
             player.update(dt);
-        }
-        int newBoosterInterval = getDistance() / boosterInterval;
-        if (currentBoosterInterval != newBoosterInterval) {
-            if (boosterCount < 3) {
-                boosterCount++;
-                context.audio.playSound("addboost", 0.3f);
-            }
         }
 
         // update camera
