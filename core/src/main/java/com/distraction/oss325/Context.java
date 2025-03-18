@@ -105,7 +105,7 @@ public class Context {
         if (score < MINIMUM_SCORE) return false;
         ILeaderBoardEntry existingEntry = null;
         for (ILeaderBoardEntry entry : entries) {
-            if (entry.getUserDisplayName().equals(name)) {
+            if (entry.getUserDisplayName().equalsIgnoreCase(name)) {
                 existingEntry = entry;
                 break;
             }

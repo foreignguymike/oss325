@@ -54,6 +54,7 @@ public class Transition {
     }
 
     public void start() {
+        reset();
         start = true;
     }
 
@@ -73,18 +74,20 @@ public class Transition {
 
     public void update(float dt) {
         if (!start) return;
+        if (done) return;
         time += dt;
         if (type == Type.PAN) {
             cam.position.x = MathUtils.map(0, duration, camStart.x, camEnd.x, time);
+            cam.position.y = MathUtils.map(0, duration, camStart.y, camEnd.y, time);
             cam.update();
         }
         if (time > duration) {
             if (!done) {
                 done = true;
                 callback.callback();
-                reset();
                 if (type == Type.PAN) {
                     cam.position.x = camEnd.x;
+                    cam.position.y = camEnd.y;
                     cam.update();
                 }
             }

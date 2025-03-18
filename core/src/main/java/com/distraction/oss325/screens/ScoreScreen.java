@@ -27,12 +27,13 @@ public class ScoreScreen extends Screen {
 
         transparent = true;
 
+        Vector2 start = new Vector2(Constants.WIDTH / 2f + Constants.HEIGHT / 2f, -Constants.HEIGHT / 2f);
         ignoreInput = true;
         in = new Transition(
             context,
             Transition.Type.PAN, cam,
-            new Vector2(1.5f * Constants.WIDTH, 0),
-            new Vector2(Constants.WIDTH / 2f, 0),
+            start,
+            new Vector2(Constants.WIDTH / 2f, Constants.HEIGHT / 2f),
             0.2f,
             () -> ignoreInput = false
         );
@@ -40,17 +41,17 @@ public class ScoreScreen extends Screen {
         out = new Transition(
             context,
             Transition.Type.PAN, cam,
-            new Vector2(Constants.WIDTH / 2f, 0),
-            new Vector2(1.5f * Constants.WIDTH, 0),
+            new Vector2(Constants.WIDTH / 2f, Constants.HEIGHT / 2f),
+            new Vector2(Constants.WIDTH / 2f + Constants.HEIGHT / 2f, -Constants.HEIGHT / 2f),
             0.2f,
             () -> {
                 context.sm.pop();
                 context.sm.peek().ignoreInput = false;
             }
         );
-        cam.position.x = 1.5f * Constants.WIDTH;
+        cam.position.x = start.x;
+        cam.position.y = start.y;
         cam.update();
-
 
         topScoresFont = new FontEntity(context.getFont(Context.FONT_NAME_VCR20, 1.5f), "Top Scores", 56, Constants.HEIGHT - 38);
 
@@ -86,7 +87,7 @@ public class ScoreScreen extends Screen {
 
         if (Gdx.input.justTouched()) {
             unproject();
-            if (backButton.contains(m.x, m.y, 2, 2)) {
+            if (backButton.contains(m.x, m.y, 2, 2) && in.isFinished() && !out.started()) {
                 ignoreInput = true;
                 out.start();
                 context.audio.playSound("click");
@@ -127,7 +128,7 @@ public class ScoreScreen extends Screen {
             scoreFont[2].render(sb);
         }
 
-        backButton.render(sb);
+        if (in.isFinished() && !out.started()) backButton.render(sb);
 
         sb.end();
     }

@@ -133,6 +133,7 @@ public class PlayScreen extends Screen {
         submittedFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716, 2f), "Submitted!", submitButton.x, submitButton.y - 4, FontEntity.Alignment.CENTER);
         scoresButton = new Button(context.getImage("scores"), Constants.WIDTH / 2f, Constants.HEIGHT / 4f - 50);
 
+        context.audio.playMusic("bg", 0.2f, true);
     }
 
     private int getSpeed() {
@@ -298,8 +299,10 @@ public class PlayScreen extends Screen {
             unproject();
             if (state == State.DONE) {
                 if (submitButton.contains(m.x, m.y, 2, 2)) {
-                    submit();
-                    context.audio.playSound("click");
+                    if (context.isHighscore(context.data.name, getDistance()) && !context.data.submitted) {
+                        submit();
+                        context.audio.playSound("click");
+                    }
                 }
             }
             if (restartButton.contains(m.x, m.y, 2, 2)) {
@@ -314,6 +317,7 @@ public class PlayScreen extends Screen {
                 out = new Transition(context, Transition.Type.FLASH_OUT, 0.5f, () -> context.sm.replace(new TitleScreen(context)));
                 out.start();
                 context.audio.playSound("click");
+                context.audio.stopMusic();
             }
             if (state == State.DONE && scoresButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
@@ -401,7 +405,7 @@ public class PlayScreen extends Screen {
         distanceFont.setText(getDistanceString());
         speedFont.setText(getSpeedString());
 
-        if (player.stopped && state != State.DONE) {
+        if ((player.stopped || (player.dx == 0 && player.launched)) && state != State.DONE) {
             state = State.DONE;
             distanceDoneFont.setText(getDistanceString());
             if (context.isHighscore(context.data.name, getDistance())) {
@@ -490,10 +494,8 @@ public class PlayScreen extends Screen {
             distanceDoneFont.render(sb);
             doneFont.render(sb);
 
-            if (context.isHighscore(context.data.name, getDistance())) {
-                if (!context.data.submitted) {
-                    submitButton.render(sb);
-                }
+            if (context.isHighscore(context.data.name, getDistance()) && !context.data.submitted) {
+                submitButton.render(sb);
             }
             if (context.data.submitted) {
                 submittedFont.render(sb);
