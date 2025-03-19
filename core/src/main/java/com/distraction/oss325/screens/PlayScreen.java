@@ -309,7 +309,7 @@ public class PlayScreen extends Screen {
             }
         }
 
-        player.up = Gdx.input.isKeyPressed(Input.Keys.UP);
+        player.up = state == State.GO && Gdx.input.isKeyPressed(Input.Keys.UP);
 
         if (Gdx.input.justTouched()) {
             unproject();
