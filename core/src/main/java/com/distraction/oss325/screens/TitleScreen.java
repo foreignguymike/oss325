@@ -86,13 +86,13 @@ public class TitleScreen extends Screen {
         sb.begin();
 
         sb.setProjectionMatrix(cam.combined);
-        sb.setColor(Constants.BLACK);
+        sb.setColor(Constants.GRAY);
         sb.draw(pixel, 0, 0, Constants.WIDTH, Constants.HEIGHT);
         sb.setColor(Constants.WHITE);
         sb.draw(pixel, 0, 130, Constants.WIDTH, 100);
 
         sb.setColor(1, 1, 1, 1);
-        Utils.drawCentered(sb, title, Constants.WIDTH / 2f, Constants.HEIGHT / 2f);
+        Utils.drawCentered(sb, title, Constants.WIDTH / 2f, Constants.HEIGHT / 2f + 20);
 
         playerFont.render(sb);
         versionFont.render(sb);

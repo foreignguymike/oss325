@@ -12,6 +12,7 @@ import com.distraction.oss325.Utils;
 import com.distraction.oss325.entity.Background;
 import com.distraction.oss325.entity.Bomb;
 import com.distraction.oss325.entity.Button;
+import com.distraction.oss325.entity.DistanceBanner;
 import com.distraction.oss325.entity.FontEntity;
 import com.distraction.oss325.entity.Interactable;
 import com.distraction.oss325.entity.LaunchAngle;
@@ -75,6 +76,9 @@ public class PlayScreen extends Screen {
     private final Button scoresButton;
     private boolean loading;
     private float time;
+
+    private int currentDistance;
+    private final DistanceBanner distanceBanner;
 
     public PlayScreen(Context context) {
         super(context);
@@ -142,7 +146,9 @@ public class PlayScreen extends Screen {
         submittedFont = new FontEntity(context.getFont(Context.FONT_NAME_M5X716, 2f), "Submitted!", submitButton.x, submitButton.y - 4, FontEntity.Alignment.CENTER);
         scoresButton = new Button(context.getImage("scores"), Constants.WIDTH / 2f, Constants.HEIGHT / 4f - 50);
 
-        context.audio.playMusic("bg", 0.2f, true);
+        distanceBanner = new DistanceBanner(context, new FontEntity(context.getFont(Context.FONT_NAME_VCR20, 2f), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f + 40, FontEntity.Alignment.CENTER));
+
+//        context.audio.playMusic("bg", 0.2f, true);
     }
 
     private int getSpeed() {
@@ -203,17 +209,17 @@ public class PlayScreen extends Screen {
             } else {
                 temp.add(new Bomb(context));
             }
-            if (index / 13 > 80) {
+            if (index / 13 > 40) {
                 if (index % 5 == 0) {
                     temp.clear();
                     temp.add(new Stop(context));
                 }
-            } else if (index / 13 > 60) {
+            } else if (index / 13 > 30) {
                 if (index % 7 == 0) {
                     temp.clear();
                     temp.add(new Stop(context));
                 }
-            } else if (index / 13 > 30) {
+            } else if (index / 13 > 15) {
                 if (index % 10 == 0) {
                     temp.clear();
                     temp.add(new Stop(context));
@@ -352,9 +358,19 @@ public class PlayScreen extends Screen {
         out.update(dt);
 
         // update player
+        player.renderGlide = state == State.GO;
         if (state == State.GO || state == State.DONE) {
             player.update(dt);
         }
+        int newDistance = getDistance();
+        if (currentDistance != newDistance) {
+            if (newDistance % 1000 == 0) {
+                context.audio.playSound("1000", 0.3f);
+                distanceBanner.setText(getDistanceString());
+                distanceBanner.start();
+            }
+        }
+        currentDistance = newDistance;
 
         // update camera
         cam.position.x = player.x;
@@ -426,6 +442,8 @@ public class PlayScreen extends Screen {
             doneAlpha = MathUtils.clamp(doneAlpha + dt, 0, 0.8f);
         }
 
+        distanceBanner.update(dt);
+
     }
 
     @Override
@@ -491,15 +509,12 @@ public class PlayScreen extends Screen {
         for (int i = 0; i < boosterCount; i++) {
             sb.draw(booster, 10 + i * 25, Constants.HEIGHT - 90);
         }
-        sb.setColor(Constants.LIME);
-        sb.draw(pixel, 10, 230, 5, 30 * (player.glideTime / Player.MAX_GLIDE_TIME));
-        sb.setColor(Constants.BLACK);
-        sb.draw(pixel, 10, 230, 5, 1);
-        sb.draw(pixel, 10, 230, 1, 30);
-        sb.draw(pixel, 10, 260, 5, 1);
-        sb.draw(pixel, 15, 230, 1, 31);
         restartButton.render(sb);
         backButton.render(sb);
+
+        if (state == State.GO) {
+            distanceBanner.render(sb);
+        }
 
         if (state == State.DONE) {
             sb.setColor(0, 0, 0, doneAlpha);

@@ -26,7 +26,7 @@ public class AudioHandler {
         addSound("bomb", "sfx/FreeSFX/Retro Explosion Swooshes 04.wav");
         addSound("metal", "sfx/metal-pole-hit-83057.wav");
         addSound("stop", "sfx/FreeSFX/Retro Event StereoUP 02.wav");
-        addSound("addboost", "sfx/FreeSFX/Retro Impact Metal 05.wav");
+        addSound("1000", "sfx/FreeSFX/Retro Impact Metal 05.wav");
         addSound("submit", "sfx/FreeSFX/Retro Event UI 13.wav");
         addSound("pluck", "sfx/click.ogg");
     }

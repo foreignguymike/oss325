@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.distraction.oss325.Animation;
+import com.distraction.oss325.Constants;
 import com.distraction.oss325.Context;
 import com.distraction.oss325.Utils;
 
@@ -13,6 +14,8 @@ public class Player extends Entity {
     public static final float MAX_GLIDE_TIME = 3f;
 
     private final Context context;
+
+    private final TextureRegion pixel;
 
     private final TextureRegion poko;
     private final Animation pokoShock;
@@ -33,9 +36,11 @@ public class Player extends Entity {
     public boolean up;
     public float glideTime = MAX_GLIDE_TIME;
     private final TextureRegion wing;
+    public boolean renderGlide;
 
     public Player(Context context) {
         this.context = context;
+        pixel = context.getPixel();
         poko = context.getImage("poko");
         w = poko.getRegionWidth();
         h = poko.getRegionHeight();
@@ -173,5 +178,12 @@ public class Player extends Entity {
         sb.setColor(1, 1, 1, 0.7f);
         if (dx > 3000) Utils.drawRotated(sb, bluedbz.getImage(), x, y, drad);
         else if (dx > 1500) Utils.drawRotated(sb, dbz.getImage(), x, y, drad);
+
+        if (renderGlide) {
+            sb.setColor(Constants.BLACK);
+            sb.draw(pixel, x - 16, y + 24, 32, 6);
+            sb.setColor(Constants.LIME);
+            sb.draw(pixel, x - 15, y + 25, 30 * (glideTime / Player.MAX_GLIDE_TIME), 4);
+        }
     }
 }
