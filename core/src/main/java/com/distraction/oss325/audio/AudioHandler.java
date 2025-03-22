@@ -16,7 +16,7 @@ public class AudioHandler {
 
     public AudioHandler() {
         music = new HashMap<>();
-        addMusic("bg", "music/darksideoffate.ogg");
+        addMusic("bg", "music/fieldcoaster.mp3");
 
         sounds = new HashMap<>();
         addSound("enter", "sfx/FreeSFX/Retro Event UI 01.wav");

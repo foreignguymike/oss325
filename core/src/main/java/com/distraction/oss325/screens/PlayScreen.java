@@ -148,7 +148,7 @@ public class PlayScreen extends Screen {
 
         distanceBanner = new DistanceBanner(context, new FontEntity(context.getFont(Context.FONT_NAME_VCR20, 2f), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f + 40, FontEntity.Alignment.CENTER));
 
-//        context.audio.playMusic("bg", 0.2f, true);
+        context.audio.playMusic("bg", 0.3f, true);
     }
 
     private int getSpeed() {
@@ -430,6 +430,7 @@ public class PlayScreen extends Screen {
 
         if ((player.stopped || (player.dx == 0 && player.launched)) && state != State.DONE) {
             state = State.DONE;
+            context.audio.playMusic("bg", 0.1f, true);
             distanceDoneFont.setText(getDistanceString());
             if (context.isHighscore(context.data.name, getDistance())) {
                 doneFont.setText("HIGH SCORE! " + getDistanceString());

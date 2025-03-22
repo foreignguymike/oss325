@@ -35,7 +35,7 @@ public class DistanceBanner extends Entity {
     public void render(SpriteBatch sb) {
         if (time < 1f) {
             sb.setColor(0, 0, 0, 0.5f);
-            sb.draw(pixel, 0, fontEntity.y - 10, Constants.WIDTH, 30);
+            sb.draw(pixel, 0, fontEntity.y - 11, Constants.WIDTH, 31);
             sb.setColor(1, 1, 1, 1);
             fontEntity.render(sb);
         }
