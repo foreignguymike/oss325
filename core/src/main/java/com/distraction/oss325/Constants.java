@@ -14,7 +14,7 @@ public class Constants {
 
     public static final boolean FULLSCREEN = false;
 
-    public static final String VERSION = "v0.1";
+    public static final String VERSION = "v1.1";
 
     // Island Joy 16
     // https://lospec.com/palette-list/island-joy-16

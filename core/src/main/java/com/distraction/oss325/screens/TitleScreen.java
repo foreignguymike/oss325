@@ -20,6 +20,7 @@ public class TitleScreen extends Screen {
 
     private final Button playButton;
     private final Button scoresButton;
+    private final Button helpButton;
 
     public TitleScreen(Context context) {
         super(context);
@@ -46,6 +47,7 @@ public class TitleScreen extends Screen {
 
         playButton = new Button(context.getImage("play"), Constants.WIDTH / 2f - 80, 60);
         scoresButton = new Button(context.getImage("scores"), Constants.WIDTH / 2f + 80, 60);
+        helpButton = new Button(context.getImage("help"), 26, 26);
     }
 
     @Override
@@ -68,6 +70,11 @@ public class TitleScreen extends Screen {
             if (scoresButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
                 context.sm.push(new ScoreScreen(context));
+                context.audio.playSound("click");
+            }
+            if (helpButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                context.sm.push(new HelpScreen(context));
                 context.audio.playSound("click");
             }
         }
@@ -100,6 +107,7 @@ public class TitleScreen extends Screen {
 
         playButton.render(sb);
         scoresButton.render(sb);
+        helpButton.render(sb);
 
         in.render(sb);
         out.render(sb);

@@ -13,6 +13,13 @@ public class ScreenManager extends Stack<Screen> {
         push(s);
     }
 
+    @Override
+    public synchronized Screen pop() {
+        Screen s = super.pop();
+        if (!isEmpty()) peek().resume();
+        return s;
+    }
+
     public void input() {
         peek().input();
     }

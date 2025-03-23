@@ -47,6 +47,8 @@ public abstract class Screen {
         uiCam.unproject(m);
     }
 
+    public void resume() {}
+
     public abstract void input();
 
     public abstract void update(float dt);

@@ -65,7 +65,7 @@ public class ScoreScreen extends Screen {
 
         updateLeaderboards();
 
-        backButton = new Button(context.getImage("back"), Constants.WIDTH - 24, Constants.HEIGHT - 24);
+        backButton = new Button(context.getImage("back"), Constants.WIDTH - 26, Constants.HEIGHT - 26);
     }
 
     private void updateLeaderboards() {
@@ -106,7 +106,6 @@ public class ScoreScreen extends Screen {
             dim += 5 * dt;
             if (dim > 0.8f || in.isFinished()) dim = 0.8f;
         }
-
     }
 
     @Override
@@ -128,6 +127,7 @@ public class ScoreScreen extends Screen {
             scoreFont[2].render(sb);
         }
 
+        sb.setProjectionMatrix(uiCam.combined);
         if (in.isFinished() && !out.started()) backButton.render(sb);
 
         sb.end();

@@ -50,6 +50,7 @@ public class PlayScreen extends Screen {
 
     private final Button restartButton;
     private final Button backButton;
+    private final Button helpButton;
 
     private final float floor = 20;
 
@@ -137,8 +138,9 @@ public class PlayScreen extends Screen {
 
         booster = context.getImage("boost");
 
-        backButton = new Button(context.getImage("back"), Constants.WIDTH - 24, Constants.HEIGHT - 24);
-        restartButton = new Button(context.getImage("restart"), Constants.WIDTH - 60, Constants.HEIGHT - 24);
+        backButton = new Button(context.getImage("back"), Constants.WIDTH - 26, Constants.HEIGHT - 26);
+        restartButton = new Button(context.getImage("restart"), Constants.WIDTH - 74, Constants.HEIGHT - 26);
+        helpButton = new Button(context.getImage("help"), 26, 26);
 
         distanceDoneFont = new FontEntity(context.getFont(Context.FONT_NAME_VCR20, 2f), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f + 40, FontEntity.Alignment.CENTER);
         doneFont = new FontEntity(context.getFont(Context.FONT_NAME_VCR20), "", Constants.WIDTH / 2f, Constants.HEIGHT / 2f, FontEntity.Alignment.CENTER);
@@ -288,6 +290,11 @@ public class PlayScreen extends Screen {
     }
 
     @Override
+    public void resume() {
+        context.audio.playMusic("bg", state == State.DONE ? 0.1f : 0.3f, true);
+    }
+
+    @Override
     public void input() {
         if (ignoreInput) return;
 
@@ -340,6 +347,12 @@ public class PlayScreen extends Screen {
                 out.start();
                 context.audio.playSound("click");
                 context.audio.stopMusic();
+            }
+            if (helpButton.contains(m.x, m.y, 2, 2)) {
+                ignoreInput = true;
+                context.sm.push(new HelpScreen(context));
+                context.audio.playSound("click");
+                context.audio.playMusic("bg", 0.1f, true);
             }
             if (state == State.DONE && scoresButton.contains(m.x, m.y, 2, 2)) {
                 ignoreInput = true;
@@ -512,6 +525,7 @@ public class PlayScreen extends Screen {
         }
         restartButton.render(sb);
         backButton.render(sb);
+        helpButton.render(sb);
 
         if (state == State.GO) {
             distanceBanner.render(sb);
@@ -539,6 +553,7 @@ public class PlayScreen extends Screen {
             }
             restartButton.render(sb);
             backButton.render(sb);
+            helpButton.render(sb);
             scoresButton.render(sb);
         }
 
